@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8">
+    <MenuBar>
+        <Menu mnemonicParsing="false" text="Archivo">
+            <MenuItem mnemonicParsing="false" text="Nuevo"/>
+            <MenuItem mnemonicParsing="false" text="Abrir"/>
+            <MenuItem mnemonicParsing="false" text="Guardar"/>
+            <MenuItem mnemonicParsing="false" text="Guardar como..."/>
+            <MenuItem mnemonicParsing="false" text="Exportar"/>
+            <MenuItem mnemonicParsing="false" text="Salir"/>
+        </Menu>
+    </MenuBar>
+    <ToolBar prefHeight="41.0" prefWidth="600.0">
+        <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="28.0">
+            <graphic>
+                <ImageView>
+                    <Image url="@images/hand-16.png"/>
+                </ImageView>
+            </graphic>
+        </Button>
+        <Separator orientation="VERTICAL" prefHeight="0.0" prefWidth="0.0"/>
+        <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="28.0">
+            <graphic>
+                <ImageView>
+                    <Image url="@images/pencil-16.png"/>
+                </ImageView>
+            </graphic>
+        </Button>
+        <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="28.0">
+            <graphic>
+                <ImageView>
+                    <Image url="@images/eraser-16.png"/>
+                </ImageView>
+            </graphic>
+        </Button>
+        <Separator orientation="VERTICAL" prefHeight="0.0" prefWidth="0.0"/>
+        <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="28.0">
+            <graphic>
+                <ImageView>
+                    <Image url="@images/circle-16.png"/>
+                </ImageView>
+            </graphic>
+        </Button>
+        <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="28.0">
+            <graphic>
+                <ImageView>
+                    <Image url="@images/line-16.png"/>
+                </ImageView>
+            </graphic>
+        </Button>
+    </ToolBar>
+    <ScrollPane VBox.vgrow="ALWAYS">
+        <StackPane>
+            <Pane opacity="0.14" prefHeight="1080.0" prefWidth="1920.0"
+                  style="-fx-background-color: #FFFFFF, linear-gradient(from 0.5px 0.0px to 10.5px  0.0px, repeat, black 1%, transparent 1%),         linear-gradient(from 0.0px 0.5px to  0.0px 10.5px, repeat, black 1%, transparent 1%);"/>
+            <Pane prefHeight="1080.0" prefWidth="1920.0"/>
+        </StackPane>
+    </ScrollPane>
+</VBox>
+
