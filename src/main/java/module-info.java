@@ -5,4 +5,6 @@ module edu.upvictoria.graphbuilder {
 
     opens edu.upvictoria.graphbuilder to javafx.fxml;
     exports edu.upvictoria.graphbuilder;
+    exports edu.upvictoria.graphbuilder.Figuras;
+    opens edu.upvictoria.graphbuilder.Figuras to javafx.fxml;
 }
