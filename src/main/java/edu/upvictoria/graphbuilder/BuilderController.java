@@ -16,14 +16,12 @@ import java.util.List;
 
 public class BuilderController {
     private Scene scene;
-    private String status = "";
     private List<Figure> figures = new ArrayList<>();
 
     @FXML private Canvas canvas;
 
     @FXML
     public void initialize() {
-        canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, this::handleMouseClicked);
         //canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, this::handleMousePressed);
         //canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, this::handleMouseDragged);
         //canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, this::handleMouseReleased);
@@ -31,37 +29,27 @@ public class BuilderController {
 
     @FXML
     protected void setMovingShapesStatus(){
-        status = "movingShapes";
         scene = canvas.getScene();
-        canvas.setCursor(Cursor.HAND);
+        canvas.setCursor(Cursor.OPEN_HAND);
         canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
+    }
+
+    private void moveShape(MouseEvent mouseEvent) {
+
     }
 
     @FXML
     protected void setDrawNodeStatus(){
-        status = "creatingNodes";
         scene = canvas.getScene();
         canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.CROSSHAIR));
         canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
+        canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, this::drawNode);
     }
 
-    private void handleMouseClicked(MouseEvent mouseEvent) {
-        switch(status){
-            case "creatingNodes":
-                drawNode(mouseEvent);
-                break;
-            case "creatingEdges":
-                break;
-            case "editing":
-                break;
-            case "deleting":
-                break;
-            case "movingShapes":
-                moveShape(mouseEvent);
-                break;
-        }
-    }
-
+    /**
+     * Crea un nodo en el lugar en donde se hizo click
+     * @param mouseEvent La accion del mouse
+     */
     private void drawNode(MouseEvent mouseEvent) {
         double x = mouseEvent.getX();
         double y = mouseEvent.getY();
@@ -70,10 +58,6 @@ public class BuilderController {
         Node node = new Node(circleCenter);
         figures.add(node);
         drawShapes();
-    }
-
-    private void moveShape(MouseEvent mouseEvent) {
-
     }
 
     /**

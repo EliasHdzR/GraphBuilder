@@ -8,7 +8,7 @@ import java.util.List;
 public class Node implements Figure {
     private String name;
     private CircleCenter mCenter;
-    private final static double mRadius = 10;
+    private final static double mRadius = 8;
     private List<Edge> edgeList;
 
     public Node(CircleCenter center) {
@@ -51,7 +51,7 @@ public class Node implements Figure {
     @Override
     public void draw(GraphicsContext gc) {
         gc.setFill(Color.BLACK);
-        gc.setStroke(Color.BLACK);
+        gc.setStroke(Color.WHITE);
         gc.fillOval(mCenter.getX() - mRadius, mCenter.getY() - mRadius, mRadius * 2, mRadius * 2);
         gc.strokeOval(mCenter.getX() - mRadius, mCenter.getY() - mRadius, mRadius * 2, mRadius * 2);
     }
