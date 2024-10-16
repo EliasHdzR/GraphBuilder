@@ -1,24 +1,25 @@
 package edu.upvictoria.graphbuilder;
 
-import edu.upvictoria.graphbuilder.Figuras.CentroCirculo;
-import edu.upvictoria.graphbuilder.Figuras.Nodo;
+import edu.upvictoria.graphbuilder.Figuras.CircleCenter;
+import edu.upvictoria.graphbuilder.Figuras.Figure;
+import edu.upvictoria.graphbuilder.Figuras.Node;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BuilderController {
     private Scene scene;
     private String status = "";
+    private List<Figure> figures = new ArrayList<>();
 
     @FXML private Canvas canvas;
-    @FXML private Button moveShapesButton;
-    @FXML private Button editInfoButton;
-    @FXML private Button delShapeButton;
-    @FXML private Button drawNodeButton;
-    @FXML private Button drawLineButton;
 
     @FXML
     public void initialize() {
@@ -29,24 +30,34 @@ public class BuilderController {
     }
 
     @FXML
+    protected void setMovingShapesStatus(){
+        status = "movingShapes";
+        scene = canvas.getScene();
+        canvas.setCursor(Cursor.HAND);
+        canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
+    }
+
+    @FXML
     protected void setDrawNodeStatus(){
-        status = "drawingNode";
-        scene = moveShapesButton.getScene();
+        status = "creatingNodes";
+        scene = canvas.getScene();
         canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.CROSSHAIR));
         canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
     }
 
     private void handleMouseClicked(MouseEvent mouseEvent) {
         switch(status){
-            case "drawingNode":
+            case "creatingNodes":
+                drawNode(mouseEvent);
                 break;
-            case "drawingLine":
+            case "creatingEdges":
                 break;
             case "editing":
                 break;
             case "deleting":
                 break;
-            case "moving":
+            case "movingShapes":
+                moveShape(mouseEvent);
                 break;
         }
     }
@@ -55,6 +66,27 @@ public class BuilderController {
         double x = mouseEvent.getX();
         double y = mouseEvent.getY();
 
+        CircleCenter circleCenter = new CircleCenter(x, y);
+        Node node = new Node(circleCenter);
+        figures.add(node);
+        drawShapes();
+    }
+
+    private void moveShape(MouseEvent mouseEvent) {
 
     }
+
+    /**
+     * Redibuja todas las figuras en el canvas para actualizar sus posiciones
+     */
+    private void drawShapes(){
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+
+        for (Figure figure : figures) {
+            figure.draw(gc);
+        }
+    }
+
+
 }
