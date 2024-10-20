@@ -1,0 +1,5 @@
+1. asignar nombres a nodos y aristas. (al crear las figuras tendrán un nombre default, como "Nodo #" o "Arista #")
+2. menu de nodo para cambiar nombre
+3. menu de arista para agregar un cambiar dirección y nombre
+4. mostrar los nombres de los nodos por default, agregar una opción para mostrar u ocultar nombres de aristas
+5. guardar grafo y recuperar grafo guardado

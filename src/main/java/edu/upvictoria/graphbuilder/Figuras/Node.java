@@ -3,13 +3,14 @@ package edu.upvictoria.graphbuilder.Figuras;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Node implements Figure {
     private String name;
-    private CircleCenter mCenter;
-    private final static double mRadius = 8;
-    private List<Edge> edgeList;
+    private final CircleCenter mCenter;
+    private final static double mRadius = 8 ;
+    private final List<Edge> edgeList = new ArrayList<>();
 
     public Node(CircleCenter center) {
         this.mCenter = center;
@@ -29,16 +30,12 @@ public class Node implements Figure {
         return name;
     }
 
-    public void setmCenter(CircleCenter mCenter) {
-        this.mCenter = mCenter;
-    }
-
     public CircleCenter getmCenter() {
         return mCenter;
     }
 
-    public void setEdgeList(List<Edge> edgeList) {
-        this.edgeList = edgeList;
+    public void addToEdgeList(Edge edge) {
+        edgeList.add(edge);
     }
 
     public List<Edge> getEdgeList() {
@@ -59,15 +56,21 @@ public class Node implements Figure {
     @Override
     public void move(double deltaX, double deltaY) {
         // aquí se settea el nuevo centro del circulo
-        this.mCenter.setmX(this.mCenter.getX() + deltaX);
-        this.mCenter.setmY(this.mCenter.getY() + deltaY);
+        this.mCenter.setmX(deltaX);
+        this.mCenter.setmY(deltaY);
+
+        for (Edge edge : edgeList) {
+            edge.changeCoords(this, deltaX, deltaY);
+        }
     }
 
     @Override
-    public boolean isInside(double x, double y) {
-        double mX = x - mCenter.getX();
-        double mY = y - mCenter.getY();
+    public boolean contains(double x, double y) {
+        double minX = mCenter.getX() - mRadius;
+        double minY = mCenter.getY() - mRadius;
+        double maxX = mCenter.getX() + mRadius;
+        double maxY = mCenter.getY() + mRadius;
 
-        return (!(x > mX + mRadius) || !(y > mY + mRadius)) && (!(x < mX - mRadius) || !(y < mY - mRadius));
+        return x >= minX && x <= maxX && y >= minY && y <= maxY;
     }
 }
