@@ -65,6 +65,39 @@ public class Edge implements Figure {
 
     @Override
     public boolean contains(double x, double y) {
-        return false;
+        double distance = pointLineDistance(startX, startY, endX, endY, x, y);
+        return distance < 5;
+    }
+
+    // Magia
+    private double pointLineDistance(double x1, double y1, double x2, double y2, double px, double py) {
+        double A = px - x1;
+        double B = py - y1;
+        double C = x2 - x1;
+        double D = y2 - y1;
+
+        double dot = A * C + B * D;
+        double len_sq = C * C + D * D;
+        double param = -1;
+        if (len_sq != 0) {
+            param = dot / len_sq;
+        }
+
+        double xx, yy;
+
+        if (param < 0) {
+            xx = x1;
+            yy = y1;
+        } else if (param > 1) {
+            xx = x2;
+            yy = y2;
+        } else {
+            xx = x1 + param * C;
+            yy = y1 + param * D;
+        }
+
+        double dx = px - xx;
+        double dy = py - yy;
+        return Math.sqrt(dx * dx + dy * dy);
     }
 }

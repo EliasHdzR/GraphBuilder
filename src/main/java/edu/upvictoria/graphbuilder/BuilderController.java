@@ -5,6 +5,7 @@ import edu.upvictoria.graphbuilder.Figuras.Edge;
 import edu.upvictoria.graphbuilder.Figuras.Figure;
 import edu.upvictoria.graphbuilder.Figuras.Node;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -12,6 +13,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToolBar;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +36,10 @@ public class BuilderController {
     public void initialize() {
         toolBar.setCursor(Cursor.DEFAULT);
     }
+
+    /************************************
+     **** FUNCIONES DEL BUILDER MAIN ****
+     ************************************/
 
     @FXML
     protected void setMovingShapesStatus(){
@@ -63,6 +69,81 @@ public class BuilderController {
     private void endMoveShape(MouseEvent mouseEvent) {
         canvas.setCursor(Cursor.OPEN_HAND);
         setMovingShapesStatus();
+    }
+
+    @FXML
+    private void setDeleteFigureStatus(){
+        removeHandlers();
+        scene = canvas.getScene();
+        canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.HAND));
+        canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
+        canvas.setOnMouseClicked(this::eraseFigure);
+    }
+
+    private void eraseFigure(MouseEvent mouseEvent) {
+        double x = mouseEvent.getX();
+        double y = mouseEvent.getY();
+        Figure figure = getFigureAt(x, y);
+
+        // si es un nodo tmb hay que borrar todas las aristas que van hacia este nodo
+        if(figure instanceof Node nodo){
+            List<Edge> nodoEdgeList = nodo.getEdgeList();
+            for(Edge edge : nodoEdgeList){
+                figures.remove(edge);
+            }
+        }
+
+        figures.remove(figure);
+        drawShapes();
+        setDeleteFigureStatus();
+    }
+
+    @FXML
+    private void setOpenFigureMenuStatus(){
+        removeHandlers();
+        canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.HAND));
+        canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
+        canvas.setOnMouseClicked(this::openFigureMenu);
+    }
+
+    private void openFigureMenu(MouseEvent mouseEvent) {
+        double x = mouseEvent.getX();
+        double y = mouseEvent.getY();
+        Figure figure = getFigureAt(x, y);
+
+        if(figure == null){
+            return;
+        }
+
+        if(figure instanceof Node nodo){
+            openNodeMenu(nodo);
+        } else if(figure instanceof Edge arista){
+            openEdgeMenu(arista);
+        }
+    }
+
+    private void openNodeMenu(Node nodo){
+        NodeController nodoControlador = new NodeController(nodo);  
+
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("menuNodo.fxml"));
+            Scene scene = new Scene(fxmlLoader.load());
+            Stage stage = new Stage();
+
+            stage.setTitle(nodo.getName());
+            stage.setScene(scene);
+            stage.setMinWidth(346);
+            stage.setMinHeight(126);
+            stage.setOnCloseRequest(event -> NodeController.openMenus.remove(nodo));
+            NodeController.openMenus.put(nodo, stage);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void openEdgeMenu(Edge arista){
+
     }
 
     @FXML
@@ -161,33 +242,6 @@ public class BuilderController {
         initialY = null;
         selectedNode = null;
         setDrawEdgeStatus();
-    }
-
-    @FXML
-    private void setDeleteFigureStatus(){
-        removeHandlers();
-        scene = canvas.getScene();
-        canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.HAND));
-        canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
-        canvas.setOnMouseClicked(this::eraseFigure);
-    }
-
-    private void eraseFigure(MouseEvent mouseEvent) {
-        double x = mouseEvent.getX();
-        double y = mouseEvent.getY();
-        Figure figure = getFigureAt(x, y);
-
-        // si es un nodo tmb hay que borrar todas las aristas que van hacia este nodo
-        if(figure instanceof Node nodo){
-            List<Edge> nodoEdgeList = nodo.getEdgeList();
-            for(Edge edge : nodoEdgeList){
-                figures.remove(edge);
-            }
-        }
-
-        figures.remove(figure);
-        drawShapes();
-        setDeleteFigureStatus();
     }
 
     private void removeHandlers(){
