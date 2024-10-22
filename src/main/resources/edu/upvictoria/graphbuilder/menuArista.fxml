@@ -4,9 +4,9 @@
 <?import javafx.scene.layout.*?>
 
 <Pane maxHeight="282.0" maxWidth="346.0" minHeight="282.0" minWidth="346.0" prefHeight="282.0" prefWidth="346.0" xmlns="http://javafx.com/javafx/8"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.upvictoria.graphbuilder.BuilderController">
+      xmlns:fx="http://javafx.com/fxml/1">
       <Label layoutX="55.0" layoutY="49.0" text="Nombre" />
-      <TextField layoutX="133.0" layoutY="44.0" />
+      <TextField fx:id="nombreArista" layoutX="133.0" layoutY="44.0" />
       <Button layoutX="173.0" layoutY="216.0" mnemonicParsing="false" text="Guardar" />
       <RadioButton layoutX="55.0" layoutY="96.0" mnemonicParsing="false" text="Direccion" />
       <ChoiceBox layoutX="139.0" layoutY="133.0" prefWidth="150.0" />

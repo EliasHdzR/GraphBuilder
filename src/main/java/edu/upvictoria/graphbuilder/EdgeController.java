@@ -1,26 +1,28 @@
 package edu.upvictoria.graphbuilder;
 
-import edu.upvictoria.graphbuilder.Figuras.Node;
+import edu.upvictoria.graphbuilder.Figuras.Edge;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-public class NodeController {
-    //variables del controlador
-    private final Node nodo;
+public class EdgeController {
+    // variables del controlador
+    private final Edge arista;
     private final Stage stage;
 
     //elementos de la gui
-    @FXML private TextField nombreNodo;
+    @FXML private TextField nombreArista;
 
-    public NodeController(Node nodo, Stage stage) {
-        this.nodo = nodo;
+    public EdgeController(Edge arista, Stage stage) {
+        this.arista = arista;
         this.stage = stage;
     }
 
     @FXML
     private void initialize() {
-        nombreNodo.setText(nodo.getName());
+        // aqui poner el nombre de la arista en el textfield
+        nombreArista.setText(arista.getName());
+        // aqui tmb se puede configurar pa que se carguen de una los nodos en el choiceBox
     }
 
     public void requestFocus() {
@@ -33,7 +35,7 @@ public class NodeController {
      *****************************************
      */
 
-    public Node getNodo() {
-        return nodo;
+    public Edge getArista() {
+        return arista;
     }
 }

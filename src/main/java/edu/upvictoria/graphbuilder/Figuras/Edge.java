@@ -4,6 +4,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 public class Edge implements Figure {
+    private String name;
     private final Node nodo1;
     private final Node nodo2;
 
@@ -19,6 +20,7 @@ public class Edge implements Figure {
         this.startY = nodo1.getmCenter().getY();
         this.endX = nodo2.getmCenter().getX();
         this.endY = nodo2.getmCenter().getY();
+        name = "Arista";
     }
 
     /**
@@ -40,6 +42,14 @@ public class Edge implements Figure {
             endX = x;
             endY = y;
         }
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     /************************************************

@@ -22,6 +22,8 @@ public class BuilderController {
     // variables del controlador
     private Scene scene;
     private final List<Figure> figures = new ArrayList<>();
+    private final List<NodeController> nodeMenusOpen = new ArrayList<>();
+    private final List<EdgeController> edgeMenusOpen = new ArrayList<>();
     private Double initialX = null;
     private Double initialY = null;
     private Node selectedNode = null;
@@ -123,19 +125,28 @@ public class BuilderController {
     }
 
     private void openNodeMenu(Node nodo){
-        NodeController nodoControlador = new NodeController(nodo);  
+        // checamos si ya esta abierto, si lo está entonces traemos la ventana al plano principal
+        for(NodeController controlador : nodeMenusOpen){
+            Node nodoTemp = controlador.getNodo();
+            if(nodoTemp == nodo){
+                controlador.requestFocus();
+                return;
+            }
+        }
 
+        // si no pues lo abrimos en una ventana nueva y lo agregamos a los menus abiertos
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("menuNodo.fxml"));
-            Scene scene = new Scene(fxmlLoader.load());
             Stage stage = new Stage();
+            NodeController nodoControlador = new NodeController(nodo, stage);
+            fxmlLoader.setController(nodoControlador);
+            Scene scene = new Scene(fxmlLoader.load());
+            nodeMenusOpen.add(nodoControlador);
 
             stage.setTitle(nodo.getName());
             stage.setScene(scene);
             stage.setMinWidth(346);
             stage.setMinHeight(126);
-            stage.setOnCloseRequest(event -> NodeController.openMenus.remove(nodo));
-            NodeController.openMenus.put(nodo, stage);
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
@@ -143,7 +154,32 @@ public class BuilderController {
     }
 
     private void openEdgeMenu(Edge arista){
+        // checamos si ya esta abierto, si lo está entonces traemos la ventana al plano principal
+        for(EdgeController controlador : edgeMenusOpen){
+            Edge aristaTemp = controlador.getArista();
+            if(aristaTemp == arista){
+                controlador.requestFocus();
+                return;
+            }
+        }
 
+        // si no pues lo abrimos en una ventana nueva y lo agregamos a los menus abiertos
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("menuArista.fxml"));
+            Stage stage = new Stage();
+            EdgeController aristaControlador = new EdgeController(arista, stage);
+            fxmlLoader.setController(aristaControlador);
+            Scene scene = new Scene(fxmlLoader.load());
+            edgeMenusOpen.add(aristaControlador);
+
+            stage.setTitle(arista.getName());
+            stage.setScene(scene);
+            stage.setMinWidth(346);
+            stage.setMinHeight(282);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
