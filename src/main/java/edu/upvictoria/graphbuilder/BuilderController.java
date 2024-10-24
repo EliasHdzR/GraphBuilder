@@ -240,8 +240,8 @@ public class BuilderController {
         //recuperamos la figura en la que se dejó de mantener presionado el clic izquirdo
         Figure fig2 = getFigureAt(mouseEvent.getX(), mouseEvent.getY());
 
-        // si esa figura no es un nodo entonces deja de dibujar el borrador de arista
-        if(!(fig2 instanceof Node nodo2)){
+        // si esa figura no es un nodo o es el que ya elegimos entonces deja de dibujar el borrador de arista
+        if(!(fig2 instanceof Node nodo2) || nodo2 == selectedNode || selectedNode == null){
             initialX = null;
             initialY = null;
             selectedNode = null;
