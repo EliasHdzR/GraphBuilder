@@ -124,24 +124,24 @@ public class BuilderController {
         }
     }
 
-    private void openNodeMenu(Node nodo){
+    private void openNodeMenu(Node nodo) {
         // checamos si ya esta abierto, si lo está entonces traemos la ventana al plano principal
-        for(NodeController controlador : nodeMenusOpen){
-            Node nodoTemp = controlador.getNodo();
-            if(nodoTemp == nodo){
+        for (NodeController controlador : nodeMenusOpen) {
+            if (controlador.getNodo() == nodo) {
                 controlador.requestFocus();
                 return;
             }
         }
-
         // si no pues lo abrimos en una ventana nueva y lo agregamos a los menus abiertos
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("menuNodo.fxml"));
             Stage stage = new Stage();
-            NodeController nodoControlador = new NodeController(nodo, stage);
+            NodeController nodoControlador = new NodeController(nodo,stage,this);
             fxmlLoader.setController(nodoControlador);
             Scene scene = new Scene(fxmlLoader.load());
-            nodeMenusOpen.add(nodoControlador);
+            nodeMenusOpen.add(nodoControlador); // Añadir el controlador a la lista de menús abiertos
+            // Eliminar el controlador de la lista cuando la ventana se cierra
+            stage.setOnHidden(event -> nodeMenusOpen.remove(nodoControlador));
 
             stage.setTitle(nodo.getName());
             stage.setScene(scene);
@@ -294,7 +294,7 @@ public class BuilderController {
      * Redibuja todas las figuras en el canvas para actualizar sus posiciones
      * y actualiza el label inferior
      */
-    private void drawShapes(){
+    public void drawShapes(){
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         int nodeCount = 0;
