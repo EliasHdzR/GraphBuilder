@@ -13,7 +13,7 @@
             <MenuItem mnemonicParsing="false" text="Abrir"/>
             <MenuItem mnemonicParsing="false" text="Guardar"/>
             <MenuItem mnemonicParsing="false" text="Guardar como..."/>
-            <MenuItem mnemonicParsing="false" text="Exportar"/>
+            <MenuItem mnemonicParsing="false" text="Exportar" onAction="#CanvasToPng"/>
             <MenuItem mnemonicParsing="false" text="Salir"/>
         </Menu>
     </MenuBar>

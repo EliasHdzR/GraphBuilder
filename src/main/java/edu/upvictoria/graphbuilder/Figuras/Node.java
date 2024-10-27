@@ -22,6 +22,8 @@ public class Node implements Figure {
      *****************************************
      */
 
+    public double getmRadius() { return mRadius; }
+
     public void setName(String name) {
         this.name = name;
     }

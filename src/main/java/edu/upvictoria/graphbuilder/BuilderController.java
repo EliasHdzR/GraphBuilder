@@ -15,6 +15,15 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
+import javafx.stage.FileChooser;
+import javafx.geometry.Rectangle2D;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.WritableImage;
+import javafx.scene.SnapshotParameters;
+import javax.imageio.ImageIO;
+import java.io.File;
+import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -327,5 +336,67 @@ public class BuilderController {
         }
 
         return null;
+    }
+
+
+    /**
+     * Me quiero matar bro
+     * */
+    @FXML
+    private void CanvasToPng() {
+        Stage stage = (Stage) canvas.getScene().getWindow();
+        // Inicializamos los límites
+        double minX = Double.MAX_VALUE;
+        double minY = Double.MAX_VALUE;
+        double maxX = Double.MIN_VALUE;
+        double maxY = Double.MIN_VALUE;
+
+        for (Figure figure : figures) {
+            if (figure instanceof Node) {
+                Node node = (Node) figure;
+                double nodeX = node.getmCenter().getX();
+                double nodeY = node.getmCenter().getY();
+                double radius = node.getmRadius();
+
+                minX = Math.min(minX, nodeX - radius); // Izquierda
+                minY = Math.min(minY, nodeY - radius); // Arriba
+                maxX = Math.max(maxX, nodeX + radius); // Derecha
+                maxY = Math.max(maxY, nodeY + radius); // Abajo
+            }
+        }
+
+        if (minX == Double.MAX_VALUE || minY == Double.MAX_VALUE ||
+                maxX == Double.MIN_VALUE || maxY == Double.MIN_VALUE) {
+            return;
+        }
+
+        /* Agregar margen a los límites */
+        double margin = 20;
+        minX = Math.max(minX - margin, 0);
+        minY = Math.max(minY - margin, 0);
+        maxX = Math.min(maxX + margin, canvas.getWidth());
+        maxY = Math.min(maxY + margin, canvas.getHeight());
+
+        WritableImage image = new WritableImage((int) (maxX - minX), (int) (maxY - minY));
+
+        SnapshotParameters params = new SnapshotParameters();
+        params.setViewport(new Rectangle2D(minX, minY, maxX - minX, maxY - minY));
+
+        canvas.snapshot(params, image);
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Guardar imagen como");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Imagen PNG", "*.png"));
+        File file = fileChooser.showSaveDialog(stage);
+        if (file != null) {
+            if (!file.getName().toLowerCase().endsWith(".png")) {
+                file = new File(file.getAbsolutePath() + ".png");
+            }
+            try {
+                ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
