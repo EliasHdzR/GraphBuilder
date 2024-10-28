@@ -289,11 +289,12 @@ public class BuilderController {
         figures.add(arista);
         drawShapes();
 
-        // Actualiza la matriz de adyacencia
         int fromIndex = nodeList.indexOf(selectedNode);
         int toIndex = nodeList.indexOf(nodo2);
-        adjacencyMatrix[fromIndex][toIndex] = 1;
-        adjacencyMatrix[toIndex][fromIndex] = 1; // Para grafo no dirigido
+        if (fromIndex != -1 && toIndex != -1) {
+            adjacencyMatrix[fromIndex][toIndex] = 1;
+            adjacencyMatrix[toIndex][fromIndex] = 1;
+        }
 
         initialX = null;
         initialY = null;
@@ -398,14 +399,26 @@ public class BuilderController {
     }
 
     private void initializeMatrix() {
-        int size = nodeList.size();
-        adjacencyMatrix = new int[size][size];
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                adjacencyMatrix[i][j] = 0; // Inicializa todas las conexiones a 0
+        int currentSize = nodeList.size();
+
+        // Si la matriz es null, inicializa como una matriz vacía
+        if (adjacencyMatrix == null) {
+            adjacencyMatrix = new int[currentSize][currentSize];
+        }
+        // Si la matriz ya existe, expande la matriz para acomodar nuevos nodos
+        else if (adjacencyMatrix.length < currentSize) {
+            int[][] newMatrix = new int[currentSize][currentSize];
+
+            // Copia las conexiones existentes a la nueva matriz
+            for (int i = 0; i < adjacencyMatrix.length; i++) {
+                System.arraycopy(adjacencyMatrix[i], 0, newMatrix[i], 0, adjacencyMatrix[i].length);
             }
+
+            // Asigna la nueva matriz como la matriz de adyacencia
+            adjacencyMatrix = newMatrix;
         }
     }
+
 
     //Funcion que guarda en el CSV y muestra el Chooser
     @FXML
