@@ -14,7 +14,7 @@ public class Node implements Figure {
 
     public Node(CircleCenter center, int medida) {
         this.mCenter = center;
-        this.name = "Nodo" + (medida + 1);
+        this.name = "Nodo" + (medida + 1)                   ;
     }
 
 

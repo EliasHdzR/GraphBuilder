@@ -60,37 +60,43 @@ public class EdgeController {
 
     @FXML
     private void guardarCambios() {
+        System.out.println(origen);
         guardarNombre();
         checkRadioButton();
-        builderController.drawShapes();
-        stage.setTitle(nombreArista.getText());
+        System.out.println(origen.getName());
+        System.out.println(destino.getName());
     }
 
     private void guardarNombre() {
         arista.setName(nombreArista.getText());
+        builderController.drawShapes();
+        stage.setTitle(nombreArista.getText());
     }
 
     private void checkRadioButton() {
         boolean bandera = tieneDireccion.isSelected();
+        System.out.println("=============================\n" + bandera + "\n================================");
         if (bandera) {
             try {
                 origen = recoverValue(firstBox);
                 destino = recoverValue(secondBox);
+                if(origen.equals(destino)){
+                    destino = (origen.equals(nodoUno)) ? nodoDos : nodoUno;
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            arista.setName("Funciono" + origen + destino);
-        }
+        } 
     }
 
     // Aqui le falta una exception real
     private Node recoverValue(ChoiceBox<String> cajita) throws Exception {
         String valor = cajita.getValue().trim();
         if (valor != null) {
-            if (nodoUno.getName().trim().equals(valor)) {
+            if (nodoUno.getName().trim().equals(valor) ) {
                 return nodoUno;
-            } else {
-                return nodoDos;
+            }else{
+               return nodoDos;
             }
         } else {
             throw new Exception();
