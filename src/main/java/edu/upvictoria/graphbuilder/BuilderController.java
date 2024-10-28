@@ -31,6 +31,7 @@ public class BuilderController {
     // variables del controlador
     private Scene scene;
     private final List<Figure> figures = new ArrayList<>();
+    private final List<Node> nodos = new ArrayList<>();
     private final List<NodeController> nodeMenusOpen = new ArrayList<>();
     private final List<EdgeController> edgeMenusOpen = new ArrayList<>();
     private Double initialX = null;
@@ -176,7 +177,7 @@ public class BuilderController {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("menuArista.fxml"));
             Stage stage = new Stage();
-            EdgeController aristaControlador = new EdgeController(arista, stage);
+            EdgeController aristaControlador = new EdgeController(arista, stage, this);
             fxmlLoader.setController(aristaControlador);
             Scene scene = new Scene(fxmlLoader.load());
             edgeMenusOpen.add(aristaControlador);
@@ -210,7 +211,8 @@ public class BuilderController {
         double y = mouseEvent.getY();
 
         CircleCenter circleCenter = new CircleCenter(x, y);
-        Node node = new Node(circleCenter);
+        Node node = new Node(circleCenter, nodos.size());
+        nodos.add(node);
         figures.add(node);
         drawShapes();
     }

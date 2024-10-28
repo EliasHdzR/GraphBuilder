@@ -12,10 +12,11 @@ public class Node implements Figure {
     private final static double mRadius = 8 ;
     private final List<Edge> edgeList = new ArrayList<>();
 
-    public Node(CircleCenter center) {
+    public Node(CircleCenter center, int medida) {
         this.mCenter = center;
-        this.name = "Nodo";
+        this.name = "Nodo" + (medida + 1);
     }
+
 
     /*****************************************
      ********** GETTERS Y SETTERS ************
