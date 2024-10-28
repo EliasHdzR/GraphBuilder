@@ -12,6 +12,7 @@ public class Edge implements Figure {
     private double startY;
     private double endX;
     private double endY;
+    private boolean bandera = false;
 
     public Edge(Node nodo1, Node nodo2){
         this.nodo1 = nodo1;
@@ -52,6 +53,18 @@ public class Edge implements Figure {
         this.name = name;
     }
 
+    public void setBandera(boolean bandera) {
+        this.bandera = bandera;
+    }
+
+    public void setOrigenDestino(Node origen, Node destino) {
+        this.startX = origen.getmCenter().getX();
+        this.startY = origen.getmCenter().getY();
+        this.endX = destino.getmCenter().getX();
+        this.endY = destino.getmCenter().getY();
+    }
+    
+
     /************************************************
      ********** FUNCIONES DE LA INTERFAZ ************
      ***********************************************/
@@ -66,7 +79,28 @@ public class Edge implements Figure {
         gc.setStroke(Color.BLACK);
         gc.setLineWidth(2);
         gc.strokeLine(startX, startY, endX, endY);
+    
+        if(bandera){
+            drawArrowHead(gc, endX, endY, startX, startY); 
+        }
     }
+    
+   
+    private void drawArrowHead(GraphicsContext gc, double tipX, double tipY, double tailX, double tailY) {
+        double arrowSize = 10;
+    
+        double angle = Math.atan2(tipY - tailY, tipX - tailX);
+    
+        double x1 = tipX - arrowSize * Math.cos(angle - Math.PI / 6);
+        double y1 = tipY - arrowSize * Math.sin(angle - Math.PI / 6);
+    
+        double x2 = tipX - arrowSize * Math.cos(angle + Math.PI / 6);
+        double y2 = tipY - arrowSize * Math.sin(angle + Math.PI / 6);
+    
+        gc.setFill(Color.BLACK);
+        gc.fillPolygon(new double[]{tipX, x1, x2}, new double[]{tipY, y1, y2}, 3);
+    }
+    
 
     @Override
     public void move(double deltaX, double deltaY) {

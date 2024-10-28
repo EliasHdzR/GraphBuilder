@@ -75,6 +75,7 @@ public class EdgeController {
 
     private void checkRadioButton() {
         boolean bandera = tieneDireccion.isSelected();
+        arista.setBandera(bandera);
         System.out.println("=============================\n" + bandera + "\n================================");
         if (bandera) {
             try {
@@ -83,6 +84,7 @@ public class EdgeController {
                 if(origen.equals(destino)){
                     destino = (origen.equals(nodoUno)) ? nodoDos : nodoUno;
                 }
+                arista.setOrigenDestino(origen, destino);
             } catch (Exception e) {
                 e.printStackTrace();
             }
