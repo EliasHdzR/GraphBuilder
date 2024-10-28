@@ -27,6 +27,7 @@ import javax.imageio.ImageIO;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class BuilderController {
@@ -350,13 +351,16 @@ public class BuilderController {
     }
 
     private void leerContenidoArchivo(){
+        int filaMatriz = 0;
+        ArrayList<Edge> edgeList = new ArrayList<>();
         try  {
             BufferedReader br = new BufferedReader(new FileReader(archivoGrafo));
             String linea;
             boolean leyendoCoordenadas = true;
 
             while ((linea = br.readLine()) != null) {
-                if (linea.trim().isEmpty()) continue;
+                linea = linea.trim();
+                if (linea.isEmpty()) continue;
 
                 if (leyendoCoordenadas) {
                     if (linea.startsWith(";")) {
@@ -364,15 +368,52 @@ public class BuilderController {
                         continue;
                     }
 
+                    // Procesa las coordenadas del nodo
                     String[] partes = linea.split(";");
                     String nombre = partes[0];
                     double x = Double.parseDouble(partes[1]);
                     double y = Double.parseDouble(partes[2]);
 
                     CircleCenter circleCenter = new CircleCenter(x, y);
-                    figures.add(new Node(nombre, circleCenter));
+                    Node newNode = new Node(nombre, circleCenter);
+                    figures.add(newNode);
+                    nodeList.add(newNode);
                 } else {
-                    //PROCESAR LA MATRIZ DE ADYACENCIA E INCIDENCIA
+                    // Procesa la matriz de adyacencia
+                    String[] partes = linea.split(";");
+
+                    // Itera desde el índice 1 para omitir el nombre del nodo en la matriz
+                    Node nodo1 = nodeList.get(filaMatriz);
+                    for (int i = 1; i < partes.length; i++) {
+                        if (partes[i].equals("1")) {
+                            Node nodo2 = nodeList.get(i - 1);
+                            Edge edge = new Edge(nodo1, nodo2);
+
+                            // Verifica si la arista ya existe antes de agregar
+                            boolean exists = false;
+                            for (Edge edgeTemp : edgeList) {
+                                if (edgeTemp.doesExist(nodo1, nodo2)) {
+                                    exists = true;
+                                    break;
+                                }
+                            }
+
+                            // Agrega la arista solo si no existe
+                            if (!exists) {
+                                figures.add(edge);
+                                edgeList.add(edge);
+                                nodo1.addToEdgeList(edge);
+                                nodo2.addToEdgeList(edge);
+                                int fromIndex = nodeList.indexOf(selectedNode);
+                                int toIndex = nodeList.indexOf(nodo2);
+                                if (fromIndex != -1 && toIndex != -1) {
+                                    adjacencyMatrix[fromIndex][toIndex] = 1;
+                                    adjacencyMatrix[toIndex][fromIndex] = 1;
+                                }
+                            }
+                        }
+                    }
+                    filaMatriz++;  // Aumenta después de cada fila de la matriz
                 }
             }
         } catch (Exception e){
@@ -381,6 +422,7 @@ public class BuilderController {
 
         drawShapes();
     }
+
 
     @FXML
     private void guardarArchivo(){
