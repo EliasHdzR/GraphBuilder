@@ -39,6 +39,8 @@ public class BuilderController {
     private Double initialY = null;
     private Node selectedNode = null;
     private File archivoGrafo = null;
+    private final List<Node> nodeList = new ArrayList<>();
+    private int[][] adjacencyMatrix;
 
     // elementos de la gui
     @FXML private Canvas canvas;
@@ -131,8 +133,6 @@ public class BuilderController {
 
         if(figure instanceof Node nodo){
             openNodeMenu(nodo);
-        } else if(figure instanceof Edge arista){
-            openEdgeMenu(arista);
         }
     }
 
@@ -321,6 +321,8 @@ public class BuilderController {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         figures.clear();
+        nodeList.clear();
+        initializeMatrix();
         nodeCounterLabel.setText("0");
         edgeCounterLabel.setText("0");
 
@@ -381,10 +383,6 @@ public class BuilderController {
     @FXML
     private void guardarArchivo(){}
 
-    //reinicia la matriz cada que se valla agregando un nodo
-    private final List<Node> nodeList = new ArrayList<>();
-    private int[][] adjacencyMatrix;
-
     private void initializeMatrix() {
         int size = nodeList.size();
         adjacencyMatrix = new int[size][size];
@@ -427,7 +425,7 @@ public class BuilderController {
             writer.newLine();
 
             // Escribe la primera fila con encabezados
-            writer.write(";");
+            writer.write(";X;");
             for (Node node : nodeList) {
                 writer.write(node.getName() + ";");
             }
