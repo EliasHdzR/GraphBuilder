@@ -318,6 +318,7 @@ public class BuilderController {
      */
     @FXML
     private void nuevoArchivo(){
+        archivoGrafo = null;
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         figures.clear();
@@ -381,7 +382,20 @@ public class BuilderController {
     }
 
     @FXML
-    private void guardarArchivo(){}
+    private void guardarArchivo(){
+        if(archivoGrafo == null){
+            saveToCSV();
+            return;
+        }
+
+        try {
+            saveMatrixToCSV(archivoGrafo.getAbsolutePath());
+            System.out.println("La matriz de adyacencia se ha guardado en '" + archivoGrafo.getName() + "'.");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Error al guardar el archivo CSV.");
+        }
+    }
 
     private void initializeMatrix() {
         int size = nodeList.size();
@@ -400,6 +414,7 @@ public class BuilderController {
         fileChooser.setTitle("Guardar Matriz como CSV");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivos CSV", "*.csv"));
         File file = fileChooser.showSaveDialog(canvas.getScene().getWindow());
+        archivoGrafo = file;
 
         if (file != null) {
             if (!file.getName().toLowerCase().endsWith(".csv")) {
