@@ -22,6 +22,8 @@ public class Node implements Figure {
      *****************************************
      */
 
+    public double getmRadius() { return mRadius; }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -51,6 +53,13 @@ public class Node implements Figure {
         gc.setStroke(Color.WHITE);
         gc.fillOval(mCenter.getX() - mRadius, mCenter.getY() - mRadius, mRadius * 2, mRadius * 2);
         gc.strokeOval(mCenter.getX() - mRadius, mCenter.getY() - mRadius, mRadius * 2, mRadius * 2);
+
+        javafx.scene.text.Text textNode = new javafx.scene.text.Text(name);  // Crea un objeto Text para medir el tamaño del texto
+        double textWidth = textNode.getLayoutBounds().getWidth(); // Obtiene el ancho del texto
+        double textX = mCenter.getX() - (textWidth / 2);
+        double textY = mCenter.getY() + mRadius + 15;
+        gc.setFill(Color.BLACK);
+        gc.fillText(name, textX, textY);
     }
 
     @Override

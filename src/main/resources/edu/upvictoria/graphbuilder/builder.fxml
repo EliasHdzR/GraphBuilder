@@ -13,7 +13,7 @@
             <MenuItem mnemonicParsing="false" text="Abrir"/>
             <MenuItem mnemonicParsing="false" text="Guardar"/>
             <MenuItem mnemonicParsing="false" text="Guardar como..." onAction="#saveToCSV"/>
-            <MenuItem mnemonicParsing="false" text="Exportar"/>
+            <MenuItem mnemonicParsing="false" text="Exportar" onAction="#CanvasToPng"/>
             <MenuItem mnemonicParsing="false" text="Salir"/>
         </Menu>
     </MenuBar>
@@ -29,7 +29,7 @@
             </graphic>
         </Button>
         <Separator orientation="VERTICAL" prefHeight="0.0" prefWidth="0.0"/>
-        <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="28.0">
+        <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="28.0" onAction="#setOpenFigureMenuStatus">
             <tooltip>
                 <Tooltip text="Editar Propiedades"/>
             </tooltip>

@@ -4,7 +4,10 @@ import edu.upvictoria.graphbuilder.Figuras.CircleCenter;
 import edu.upvictoria.graphbuilder.Figuras.Edge;
 import edu.upvictoria.graphbuilder.Figuras.Figure;
 import edu.upvictoria.graphbuilder.Figuras.Node;
+
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -12,12 +15,20 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToolBar;
 import javafx.scene.input.MouseEvent;
-import javafx.stage.FileChooser;
+import javafx.scene.image.WritableImage;
+import javafx.scene.SnapshotParameters;
 
-import java.io.BufferedWriter;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javafx.geometry.Rectangle2D;
+import javafx.embed.swing.SwingFXUtils;
+
+import javax.imageio.ImageIO;
+
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +36,8 @@ public class BuilderController {
     // variables del controlador
     private Scene scene;
     private final List<Figure> figures = new ArrayList<>();
+    private final List<NodeController> nodeMenusOpen = new ArrayList<>();
+    private final List<EdgeController> edgeMenusOpen = new ArrayList<>();
     private Double initialX = null;
     private Double initialY = null;
     private Node selectedNode = null;
@@ -39,6 +52,10 @@ public class BuilderController {
     public void initialize() {
         toolBar.setCursor(Cursor.DEFAULT);
     }
+
+    /************************************
+     **** FUNCIONES DEL BUILDER MAIN ****
+     ************************************/
 
     @FXML
     protected void setMovingShapesStatus(){
@@ -68,6 +85,115 @@ public class BuilderController {
     private void endMoveShape(MouseEvent mouseEvent) {
         canvas.setCursor(Cursor.OPEN_HAND);
         setMovingShapesStatus();
+    }
+
+    @FXML
+    private void setDeleteFigureStatus(){
+        removeHandlers();
+        scene = canvas.getScene();
+        canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.HAND));
+        canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
+        canvas.setOnMouseClicked(this::eraseFigure);
+    }
+
+    private void eraseFigure(MouseEvent mouseEvent) {
+        double x = mouseEvent.getX();
+        double y = mouseEvent.getY();
+        Figure figure = getFigureAt(x, y);
+
+        // si es un nodo tmb hay que borrar todas las aristas que van hacia este nodo
+        if(figure instanceof Node nodo){
+            List<Edge> nodoEdgeList = nodo.getEdgeList();
+            for(Edge edge : nodoEdgeList){
+                figures.remove(edge);
+            }
+        }
+
+        figures.remove(figure);
+        drawShapes();
+        setDeleteFigureStatus();
+    }
+
+    @FXML
+    private void setOpenFigureMenuStatus(){
+        removeHandlers();
+        canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.HAND));
+        canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
+        canvas.setOnMouseClicked(this::openFigureMenu);
+    }
+
+    private void openFigureMenu(MouseEvent mouseEvent) {
+        double x = mouseEvent.getX();
+        double y = mouseEvent.getY();
+        Figure figure = getFigureAt(x, y);
+
+        if(figure == null){
+            return;
+        }
+
+        if(figure instanceof Node nodo){
+            openNodeMenu(nodo);
+        } else if(figure instanceof Edge arista){
+            openEdgeMenu(arista);
+        }
+    }
+
+    private void openNodeMenu(Node nodo) {
+        // checamos si ya esta abierto, si lo está entonces traemos la ventana al plano principal
+        for (NodeController controlador : nodeMenusOpen) {
+            if (controlador.getNodo() == nodo) {
+                controlador.requestFocus();
+                return;
+            }
+        }
+        // si no pues lo abrimos en una ventana nueva y lo agregamos a los menus abiertos
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("menuNodo.fxml"));
+            Stage stage = new Stage();
+            NodeController nodoControlador = new NodeController(nodo,stage,this);
+            fxmlLoader.setController(nodoControlador);
+            Scene scene = new Scene(fxmlLoader.load());
+            nodeMenusOpen.add(nodoControlador); // Añadir el controlador a la lista de menús abiertos
+            // Eliminar el controlador de la lista cuando la ventana se cierra
+            stage.setOnHidden(event -> nodeMenusOpen.remove(nodoControlador));
+
+            stage.setTitle(nodo.getName());
+            stage.setScene(scene);
+            stage.setMinWidth(346);
+            stage.setMinHeight(126);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void openEdgeMenu(Edge arista){
+        // checamos si ya esta abierto, si lo está entonces traemos la ventana al plano principal
+        for(EdgeController controlador : edgeMenusOpen){
+            Edge aristaTemp = controlador.getArista();
+            if(aristaTemp == arista){
+                controlador.requestFocus();
+                return;
+            }
+        }
+
+        // si no pues lo abrimos en una ventana nueva y lo agregamos a los menus abiertos
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("menuArista.fxml"));
+            Stage stage = new Stage();
+            EdgeController aristaControlador = new EdgeController(arista, stage);
+            fxmlLoader.setController(aristaControlador);
+            Scene scene = new Scene(fxmlLoader.load());
+            edgeMenusOpen.add(aristaControlador);
+
+            stage.setTitle(arista.getName());
+            stage.setScene(scene);
+            stage.setMinWidth(346);
+            stage.setMinHeight(282);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -130,8 +256,8 @@ public class BuilderController {
         //recuperamos la figura en la que se dejó de mantener presionado el clic izquirdo
         Figure fig2 = getFigureAt(mouseEvent.getX(), mouseEvent.getY());
 
-        // si esa figura no es un nodo entonces deja de dibujar el borrador de arista
-        if(!(fig2 instanceof Node nodo2)){
+        // si esa figura no es un nodo o es el que ya elegimos entonces deja de dibujar el borrador de arista
+        if(!(fig2 instanceof Node nodo2) || nodo2 == selectedNode || selectedNode == null){
             initialX = null;
             initialY = null;
             selectedNode = null;
@@ -177,33 +303,6 @@ public class BuilderController {
         setDrawEdgeStatus();
     }
 
-    @FXML
-    private void setDeleteFigureStatus(){
-        removeHandlers();
-        scene = canvas.getScene();
-        canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.HAND));
-        canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
-        canvas.setOnMouseClicked(this::eraseFigure);
-    }
-
-    private void eraseFigure(MouseEvent mouseEvent) {
-        double x = mouseEvent.getX();
-        double y = mouseEvent.getY();
-        Figure figure = getFigureAt(x, y);
-
-        // si es un nodo tmb hay que borrar todas las aristas que van hacia este nodo
-        if(figure instanceof Node nodo){
-            List<Edge> nodoEdgeList = nodo.getEdgeList();
-            for(Edge edge : nodoEdgeList){
-                figures.remove(edge);
-            }
-        }
-
-        figures.remove(figure);
-        drawShapes();
-        setDeleteFigureStatus();
-    }
-
     private void removeHandlers(){
         canvas.setOnMouseClicked(null);
         canvas.setOnMouseDragged(null);
@@ -218,7 +317,7 @@ public class BuilderController {
      * Redibuja todas las figuras en el canvas para actualizar sus posiciones
      * y actualiza el label inferior
      */
-    private void drawShapes(){
+    public void drawShapes(){
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         int nodeCount = 0;
@@ -303,6 +402,68 @@ public class BuilderController {
             } catch (IOException e) {
                 e.printStackTrace();
                 System.out.println("Error al guardar el archivo CSV.");
+            }
+        }
+    }
+
+
+    /**
+     * Me quiero matar bro
+     * */
+    @FXML
+    private void CanvasToPng() {
+        Stage stage = (Stage) canvas.getScene().getWindow();
+        // Inicializamos los límites
+        double minX = Double.MAX_VALUE;
+        double minY = Double.MAX_VALUE;
+        double maxX = Double.MIN_VALUE;
+        double maxY = Double.MIN_VALUE;
+
+        for (Figure figure : figures) {
+            if (figure instanceof Node) {
+                Node node = (Node) figure;
+                double nodeX = node.getmCenter().getX();
+                double nodeY = node.getmCenter().getY();
+                double radius = node.getmRadius();
+
+                minX = Math.min(minX, nodeX - radius); // Izquierda
+                minY = Math.min(minY, nodeY - radius); // Arriba
+                maxX = Math.max(maxX, nodeX + radius); // Derecha
+                maxY = Math.max(maxY, nodeY + radius); // Abajo
+            }
+        }
+
+        if (minX == Double.MAX_VALUE || minY == Double.MAX_VALUE ||
+                maxX == Double.MIN_VALUE || maxY == Double.MIN_VALUE) {
+            return;
+        }
+
+        /* Agregar margen a los límites */
+        double margin = 20;
+        minX = Math.max(minX - margin, 0);
+        minY = Math.max(minY - margin, 0);
+        maxX = Math.min(maxX + margin, canvas.getWidth());
+        maxY = Math.min(maxY + margin, canvas.getHeight());
+
+        WritableImage image = new WritableImage((int) (maxX - minX), (int) (maxY - minY));
+
+        SnapshotParameters params = new SnapshotParameters();
+        params.setViewport(new Rectangle2D(minX, minY, maxX - minX, maxY - minY));
+
+        canvas.snapshot(params, image);
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Guardar imagen como");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Imagen PNG", "*.png"));
+        File file = fileChooser.showSaveDialog(stage);
+        if (file != null) {
+            if (!file.getName().toLowerCase().endsWith(".png")) {
+                file = new File(file.getAbsolutePath() + ".png");
+            }
+            try {
+                ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }

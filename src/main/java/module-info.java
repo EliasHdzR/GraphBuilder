@@ -1,7 +1,9 @@
 module edu.upvictoria.graphbuilder {
     requires javafx.controls;
     requires javafx.fxml;
-
+    requires javafx.graphics;
+    requires javafx.base;
+    requires javafx.swing;
 
     opens edu.upvictoria.graphbuilder to javafx.fxml;
     exports edu.upvictoria.graphbuilder;
