@@ -12,7 +12,12 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToolBar;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.FileChooser;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,6 +91,8 @@ public class BuilderController {
         CircleCenter circleCenter = new CircleCenter(x, y);
         Node node = new Node(circleCenter);
         figures.add(node);
+        nodeList.add(node);
+        initializeMatrix();
         drawShapes();
     }
 
@@ -157,6 +164,13 @@ public class BuilderController {
         // añadimos la arista a la lista y la dibujamos, posteriormente reiniciamos el estado de dibujo
         figures.add(arista);
         drawShapes();
+
+        // Actualiza la matriz de adyacencia
+        int fromIndex = nodeList.indexOf(selectedNode);
+        int toIndex = nodeList.indexOf(nodo2);
+        adjacencyMatrix[fromIndex][toIndex] = 1;
+        adjacencyMatrix[toIndex][fromIndex] = 1; // Para grafo no dirigido
+
         initialX = null;
         initialY = null;
         selectedNode = null;
@@ -237,5 +251,59 @@ public class BuilderController {
         }
 
         return null;
+    }
+
+    //reinicia la matriz cada que se valla agregando un nodo
+    private List<Node> nodeList = new ArrayList<>();
+    private int[][] adjacencyMatrix;
+
+    private void initializeMatrix() {
+        int size = nodeList.size();
+        adjacencyMatrix = new int[size][size];
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                adjacencyMatrix[i][j] = 0; // Inicializa todas las conexiones a 0
+            }
+        }
+    }
+
+    //guarda la matriz en csv
+    private void saveMatrixToCSV(String fileName) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            // Escribe la primera fila con encabezados
+            writer.write(";");
+            for (Node node : nodeList) {
+                writer.write(node.getName() + ";");
+            }
+            writer.newLine();
+
+            // Escribe cada fila de la matriz de adyacencia
+            for (int i = 0; i < adjacencyMatrix.length; i++) {
+                writer.write(nodeList.get(i).getName() + ";"); // Nombre del nodo al inicio de la fila
+                for (int j = 0; j < adjacencyMatrix[i].length; j++) {
+                    writer.write(adjacencyMatrix[i][j] + ";");
+                }
+                writer.newLine();
+            }
+        }
+    }
+
+    //Funcion que guarda en el CSV y muestra el Chooser
+    @FXML
+    private void saveToCSV() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Guardar Matriz como CSV");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
+        File file = fileChooser.showSaveDialog(canvas.getScene().getWindow());
+
+        if (file != null) {
+            try {
+                saveMatrixToCSV(file.getAbsolutePath());
+                System.out.println("La matriz de adyacencia se ha guardado en '" + file.getName() + "'.");
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("Error al guardar el archivo CSV.");
+            }
+        }
     }
 }
