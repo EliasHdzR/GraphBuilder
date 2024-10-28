@@ -30,6 +30,10 @@ public class EdgeController {
         stage.requestFocus();
     }
 
+    public void cerrarVentana() {
+        stage.close();
+    }
+
     /*****************************************
      ********** GETTERS Y SETTERS ************
      *****************************************

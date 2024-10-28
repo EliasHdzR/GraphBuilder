@@ -25,10 +25,7 @@ import javafx.embed.swing.SwingFXUtils;
 
 import javax.imageio.ImageIO;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,12 +38,13 @@ public class BuilderController {
     private Double initialX = null;
     private Double initialY = null;
     private Node selectedNode = null;
+    private File archivoGrafo = null;
 
     // elementos de la gui
     @FXML private Canvas canvas;
     @FXML private ToolBar toolBar;
-    @FXML private Label nodeCounterLaber;
-    @FXML private Label edgeCounterLaber;
+    @FXML private Label nodeCounterLabel;
+    @FXML private Label edgeCounterLabel;
 
     @FXML
     public void initialize() {
@@ -153,9 +151,8 @@ public class BuilderController {
             NodeController nodoControlador = new NodeController(nodo,stage,this);
             fxmlLoader.setController(nodoControlador);
             Scene scene = new Scene(fxmlLoader.load());
-            nodeMenusOpen.add(nodoControlador); // Añadir el controlador a la lista de menús abiertos
-            // Eliminar el controlador de la lista cuando la ventana se cierra
-            stage.setOnHidden(event -> nodeMenusOpen.remove(nodoControlador));
+            nodeMenusOpen.add(nodoControlador);
+            stage.setOnCloseRequest(event -> nodeMenusOpen.remove(nodoControlador));
 
             stage.setTitle(nodo.getName());
             stage.setScene(scene);
@@ -185,6 +182,7 @@ public class BuilderController {
             fxmlLoader.setController(aristaControlador);
             Scene scene = new Scene(fxmlLoader.load());
             edgeMenusOpen.add(aristaControlador);
+            stage.setOnCloseRequest(event -> edgeMenusOpen.remove(aristaControlador));
 
             stage.setTitle(arista.getName());
             stage.setScene(scene);
@@ -310,50 +308,81 @@ public class BuilderController {
         canvas.setOnMousePressed(null);
     }
 
-    /************************************
-     **** FUNCIONES PARA LAS FIGURAS ****
-     ************************************/
-    /**
-     * Redibuja todas las figuras en el canvas para actualizar sus posiciones
-     * y actualiza el label inferior
+    /***********************************
+     * **** FUNCIONES ARCHIVO *********
+     * *********************************
      */
-    public void drawShapes(){
+
+    /**
+     * Vacía el canvas y lo deja como nuevo
+     */
+    @FXML
+    private void nuevoArchivo(){
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        int nodeCount = 0;
-        int edgeCount = 0;
+        figures.clear();
+        nodeCounterLabel.setText("0");
+        edgeCounterLabel.setText("0");
 
-        for (Figure figure : figures) {
-            figure.draw(gc);
-            if(figure instanceof Node){
-                nodeCount++;
-            } else if(figure instanceof Edge){
-                edgeCount++;
-            }
+        for(NodeController nodeMenu : nodeMenusOpen){
+            nodeMenu.cerrarVentana();
         }
+        nodeMenusOpen.clear();
 
-        nodeCounterLaber.setText(String.valueOf(nodeCount));
-        edgeCounterLaber.setText(String.valueOf(edgeCount));
+        for(EdgeController edgeMenu : edgeMenusOpen){
+            edgeMenu.cerrarVentana();
+        }
+        edgeMenusOpen.clear();
     }
 
-    /**
-     * Obtiene la figura que contenga las coordenadas del evento
-     * @param x Coordenada x del click
-     * @param y Coordenada y del click
-     * @return Una figura
-     */
-    private Figure getFigureAt(double x, double y){
-        for (Figure figure : figures) {
-            if(figure.contains(x, y)) {
-                return figure;
+    @FXML
+    private void abrirArchivo(){
+        nuevoArchivo();
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Abrir Archivo");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivos CSV", "*.csv"));
+        archivoGrafo = fileChooser.showOpenDialog(null);
+        leerContenidoArchivo();
+    }
+
+    private void leerContenidoArchivo(){
+        try  {
+            BufferedReader br = new BufferedReader(new FileReader(archivoGrafo));
+            String linea;
+            boolean leyendoCoordenadas = true;
+
+            while ((linea = br.readLine()) != null) {
+                if (linea.trim().isEmpty()) continue;
+
+                if (leyendoCoordenadas) {
+                    if (linea.startsWith(";")) {
+                        leyendoCoordenadas = false;
+                        continue;
+                    }
+
+                    String[] partes = linea.split(";");
+                    String nombre = partes[0];
+                    double x = Double.parseDouble(partes[1]);
+                    double y = Double.parseDouble(partes[2]);
+
+                    CircleCenter circleCenter = new CircleCenter(x, y);
+                    figures.add(new Node(nombre, circleCenter));
+                } else {
+                    //PROCESAR LA MATRIZ DE ADYACENCIA E INCIDENCIA
+                }
             }
+        } catch (Exception e){
+            e.printStackTrace();
         }
 
-        return null;
+        drawShapes();
     }
+
+    @FXML
+    private void guardarArchivo(){}
 
     //reinicia la matriz cada que se valla agregando un nodo
-    private List<Node> nodeList = new ArrayList<>();
+    private final List<Node> nodeList = new ArrayList<>();
     private int[][] adjacencyMatrix;
 
     private void initializeMatrix() {
@@ -366,9 +395,37 @@ public class BuilderController {
         }
     }
 
+    //Funcion que guarda en el CSV y muestra el Chooser
+    @FXML
+    private void saveToCSV() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Guardar Matriz como CSV");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivos CSV", "*.csv"));
+        File file = fileChooser.showSaveDialog(canvas.getScene().getWindow());
+
+        if (file != null) {
+            if (!file.getName().toLowerCase().endsWith(".csv")) {
+                file = new File(file.getAbsolutePath() + ".csv");
+            }
+            try {
+                saveMatrixToCSV(file.getAbsolutePath());
+                System.out.println("La matriz de adyacencia se ha guardado en '" + file.getName() + "'.");
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("Error al guardar el archivo CSV.");
+            }
+        }
+    }
+
     //guarda la matriz en csv
     private void saveMatrixToCSV(String fileName) throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            for (Node node : nodeList) {
+                writer.write(node.getName() + ";" + node.getmCenter().getX() + ";" + node.getmCenter().getY());
+                writer.newLine();
+            }
+            writer.newLine();
+
             // Escribe la primera fila con encabezados
             writer.write(";");
             for (Node node : nodeList) {
@@ -387,26 +444,6 @@ public class BuilderController {
         }
     }
 
-    //Funcion que guarda en el CSV y muestra el Chooser
-    @FXML
-    private void saveToCSV() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Guardar Matriz como CSV");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
-        File file = fileChooser.showSaveDialog(canvas.getScene().getWindow());
-
-        if (file != null) {
-            try {
-                saveMatrixToCSV(file.getAbsolutePath());
-                System.out.println("La matriz de adyacencia se ha guardado en '" + file.getName() + "'.");
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.out.println("Error al guardar el archivo CSV.");
-            }
-        }
-    }
-
-
     /**
      * Me quiero matar bro
      * */
@@ -420,8 +457,7 @@ public class BuilderController {
         double maxY = Double.MIN_VALUE;
 
         for (Figure figure : figures) {
-            if (figure instanceof Node) {
-                Node node = (Node) figure;
+            if (figure instanceof Node node) {
                 double nodeX = node.getmCenter().getX();
                 double nodeY = node.getmCenter().getY();
                 double radius = node.getmRadius();
@@ -466,5 +502,47 @@ public class BuilderController {
                 e.printStackTrace();
             }
         }
+    }
+
+    /************************************
+     **** FUNCIONES PARA LAS FIGURAS ****
+     ************************************/
+    /**
+     * Redibuja todas las figuras en el canvas para actualizar sus posiciones
+     * y actualiza el label inferior
+     */
+    public void drawShapes(){
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        int nodeCount = 0;
+        int edgeCount = 0;
+
+        for (Figure figure : figures) {
+            figure.draw(gc);
+            if(figure instanceof Node){
+                nodeCount++;
+            } else if(figure instanceof Edge){
+                edgeCount++;
+            }
+        }
+
+        nodeCounterLabel.setText(String.valueOf(nodeCount));
+        edgeCounterLabel.setText(String.valueOf(edgeCount));
+    }
+
+    /**
+     * Obtiene la figura que contenga las coordenadas del evento
+     * @param x Coordenada x del click
+     * @param y Coordenada y del click
+     * @return Una figura
+     */
+    private Figure getFigureAt(double x, double y){
+        for (Figure figure : figures) {
+            if(figure.contains(x, y)) {
+                return figure;
+            }
+        }
+
+        return null;
     }
 }

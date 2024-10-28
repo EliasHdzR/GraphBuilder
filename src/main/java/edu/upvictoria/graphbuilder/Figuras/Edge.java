@@ -23,6 +23,16 @@ public class Edge implements Figure {
         name = "Arista";
     }
 
+    public Edge(Node nodo1, Node nodo2, String name){
+        this.nodo1 = nodo1;
+        this.nodo2 = nodo2;
+        this.startX = nodo1.getmCenter().getX();
+        this.startY = nodo1.getmCenter().getY();
+        this.endX = nodo2.getmCenter().getX();
+        this.endY = nodo2.getmCenter().getY();
+        this.name = name;
+    }
+
     /**
      * Compara dos nodos recibidos con los dos nodos existentes para checar si estos nodos ya
      * están unidos por una arista, así se evita dibujar más de una arista entre dos mismos nodos

@@ -17,6 +17,10 @@ public class Node implements Figure {
         this.name = "Nodo";
     }
 
+    public Node(String nombre, CircleCenter center) {
+        this.mCenter = center;
+        this.name = nombre;
+    }
     /*****************************************
      ********** GETTERS Y SETTERS ************
      *****************************************
