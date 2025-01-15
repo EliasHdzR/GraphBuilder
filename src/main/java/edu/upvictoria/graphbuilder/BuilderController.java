@@ -12,7 +12,9 @@ import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.image.WritableImage;
@@ -27,12 +29,11 @@ import javax.imageio.ImageIO;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class BuilderController {
     // variables del controlador
-    private Scene scene;
+    public Scene scene;
     private final List<Figure> figures = new ArrayList<>();
     private final List<NodeController> nodeMenusOpen = new ArrayList<>();
     private final List<EdgeController> edgeMenusOpen = new ArrayList<>();
@@ -49,9 +50,25 @@ public class BuilderController {
     @FXML private Label nodeCounterLabel;
     @FXML private Label edgeCounterLabel;
 
+    // botones de la barra de herramientas
+    @FXML private Button moveShapesButton;
+    @FXML private Button openMenusButton;
+    @FXML private Button deleteShapesButton;
+    @FXML private Button drawNodeButton;
+    @FXML private Button drawEdgeButton;
+    private final ArrayList<Button> buttons = new ArrayList<>();
+
+
     @FXML
     public void initialize() {
+        buttons.add(moveShapesButton);
+        buttons.add(openMenusButton);
+        buttons.add(deleteShapesButton);
+        buttons.add(drawNodeButton);
+        buttons.add(drawEdgeButton);
+
         toolBar.setCursor(Cursor.DEFAULT);
+        setMovingShapesStatus();
     }
 
     /************************************
@@ -61,6 +78,9 @@ public class BuilderController {
     @FXML
     protected void setMovingShapesStatus(){
         removeHandlers();
+        setDefaultStyle();
+        setActiveStyle(moveShapesButton);
+
         scene = canvas.getScene();
         canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.OPEN_HAND));
         canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
@@ -91,6 +111,9 @@ public class BuilderController {
     @FXML
     private void setDeleteFigureStatus(){
         removeHandlers();
+        setDefaultStyle();
+        setActiveStyle(deleteShapesButton);
+
         scene = canvas.getScene();
         canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.HAND));
         canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
@@ -118,6 +141,9 @@ public class BuilderController {
     @FXML
     private void setOpenFigureMenuStatus(){
         removeHandlers();
+        setDefaultStyle();
+        setActiveStyle(openMenusButton);
+
         canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.HAND));
         canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
         canvas.setOnMouseClicked(this::openFigureMenu);
@@ -165,39 +191,12 @@ public class BuilderController {
         }
     }
 
-    private void openEdgeMenu(Edge arista){
-        // checamos si ya esta abierto, si lo está entonces traemos la ventana al plano principal
-        for(EdgeController controlador : edgeMenusOpen){
-            Edge aristaTemp = controlador.getArista();
-            if(aristaTemp == arista){
-                controlador.requestFocus();
-                return;
-            }
-        }
-
-        // si no pues lo abrimos en una ventana nueva y lo agregamos a los menus abiertos
-        try {
-            FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("menuArista.fxml"));
-            Stage stage = new Stage();
-            EdgeController aristaControlador = new EdgeController(arista, stage);
-            fxmlLoader.setController(aristaControlador);
-            Scene scene = new Scene(fxmlLoader.load());
-            edgeMenusOpen.add(aristaControlador);
-            stage.setOnCloseRequest(event -> edgeMenusOpen.remove(aristaControlador));
-
-            stage.setTitle(arista.getName());
-            stage.setScene(scene);
-            stage.setMinWidth(346);
-            stage.setMinHeight(282);
-            stage.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     @FXML
     protected void setDrawNodeStatus(){
         removeHandlers();
+        setDefaultStyle();
+        setActiveStyle(drawNodeButton);
+
         scene = canvas.getScene();
         canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.CROSSHAIR));
         canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
@@ -224,6 +223,9 @@ public class BuilderController {
     @FXML
     protected void setDrawEdgeStatus(){
         removeHandlers();
+        setDefaultStyle();
+        setActiveStyle(drawEdgeButton);
+
         scene = canvas.getScene();
         canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.CROSSHAIR));
         canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
@@ -423,7 +425,6 @@ public class BuilderController {
         drawShapes();
     }
 
-
     @FXML
     private void guardarArchivo(){
         if(archivoGrafo == null){
@@ -460,7 +461,6 @@ public class BuilderController {
             adjacencyMatrix = newMatrix;
         }
     }
-
 
     //Funcion que guarda en el CSV y muestra el Chooser
     @FXML
@@ -612,5 +612,19 @@ public class BuilderController {
         }
 
         return null;
+    }
+
+    /************************************
+     ************ ESTILOS ***************
+     ************************************/
+
+    private void setActiveStyle(Button button){
+        button.setStyle("-fx-background-color: #7298d6;");
+    }
+
+    private void setDefaultStyle(){
+        for(Button button: buttons){
+            button.setStyle("");
+        }
     }
 }
