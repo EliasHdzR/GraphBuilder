@@ -14,6 +14,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToolBar;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.image.WritableImage;
 import javafx.scene.SnapshotParameters;
@@ -44,14 +45,19 @@ public class BuilderController {
     private int[][] adjacencyMatrix;
 
     // elementos de la gui
-    @FXML private Canvas canvas;
-    @FXML private ToolBar toolBar;
-    @FXML private Label nodeCounterLabel;
-    @FXML private Label edgeCounterLabel;
+    @FXML
+    private Canvas canvas;
+    @FXML
+    private ToolBar toolBar;
+    @FXML
+    private Label nodeCounterLabel;
+    @FXML
+    private Label edgeCounterLabel;
 
     @FXML
     public void initialize() {
         toolBar.setCursor(Cursor.DEFAULT);
+        shortcuts();
     }
 
     /************************************
@@ -59,7 +65,7 @@ public class BuilderController {
      ************************************/
 
     @FXML
-    protected void setMovingShapesStatus(){
+    protected void setMovingShapesStatus() {
         removeHandlers();
         scene = canvas.getScene();
         canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.OPEN_HAND));
@@ -75,7 +81,7 @@ public class BuilderController {
         double y = mouseEvent.getY();
         Figure figura = getFigureAt(x, y);
 
-        if(!(figura instanceof Node nodo)){
+        if (!(figura instanceof Node nodo)) {
             return;
         }
 
@@ -89,7 +95,7 @@ public class BuilderController {
     }
 
     @FXML
-    private void setDeleteFigureStatus(){
+    private void setDeleteFigureStatus() {
         removeHandlers();
         scene = canvas.getScene();
         canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.HAND));
@@ -103,9 +109,9 @@ public class BuilderController {
         Figure figure = getFigureAt(x, y);
 
         // si es un nodo tmb hay que borrar todas las aristas que van hacia este nodo
-        if(figure instanceof Node nodo){
+        if (figure instanceof Node nodo) {
             List<Edge> nodoEdgeList = nodo.getEdgeList();
-            for(Edge edge : nodoEdgeList){
+            for (Edge edge : nodoEdgeList) {
                 figures.remove(edge);
             }
         }
@@ -116,7 +122,7 @@ public class BuilderController {
     }
 
     @FXML
-    private void setOpenFigureMenuStatus(){
+    private void setOpenFigureMenuStatus() {
         removeHandlers();
         canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.HAND));
         canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
@@ -128,11 +134,11 @@ public class BuilderController {
         double y = mouseEvent.getY();
         Figure figure = getFigureAt(x, y);
 
-        if(figure == null){
+        if (figure == null) {
             return;
         }
 
-        if(figure instanceof Node nodo){
+        if (figure instanceof Node nodo) {
             openNodeMenu(nodo);
         }
     }
@@ -149,7 +155,7 @@ public class BuilderController {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("menuNodo.fxml"));
             Stage stage = new Stage();
-            NodeController nodoControlador = new NodeController(nodo,stage,this);
+            NodeController nodoControlador = new NodeController(nodo, stage, this);
             fxmlLoader.setController(nodoControlador);
             Scene scene = new Scene(fxmlLoader.load());
             nodeMenusOpen.add(nodoControlador);
@@ -165,11 +171,11 @@ public class BuilderController {
         }
     }
 
-    private void openEdgeMenu(Edge arista){
+    private void openEdgeMenu(Edge arista) {
         // checamos si ya esta abierto, si lo está entonces traemos la ventana al plano principal
-        for(EdgeController controlador : edgeMenusOpen){
+        for (EdgeController controlador : edgeMenusOpen) {
             Edge aristaTemp = controlador.getArista();
-            if(aristaTemp == arista){
+            if (aristaTemp == arista) {
                 controlador.requestFocus();
                 return;
             }
@@ -196,7 +202,7 @@ public class BuilderController {
     }
 
     @FXML
-    protected void setDrawNodeStatus(){
+    protected void setDrawNodeStatus() {
         removeHandlers();
         scene = canvas.getScene();
         canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.CROSSHAIR));
@@ -207,6 +213,7 @@ public class BuilderController {
 
     /**
      * Crea un nodo en el lugar en donde se hizo click
+     *
      * @param mouseEvent La accion del mouse
      */
     private void drawNode(MouseEvent mouseEvent) {
@@ -222,17 +229,17 @@ public class BuilderController {
     }
 
     @FXML
-    protected void setDrawEdgeStatus(){
+    protected void setDrawEdgeStatus() {
         removeHandlers();
         scene = canvas.getScene();
         canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.CROSSHAIR));
         canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
         canvas.setOnMouseDragged(this::drawEdge);
-        canvas.setOnMouseReleased(this::endDrawEdge);   
+        canvas.setOnMouseReleased(this::endDrawEdge);
     }
 
     private void drawEdge(MouseEvent mouseEvent) {
-        if(initialX == null && initialY == null && selectedNode == null){
+        if (initialX == null && initialY == null && selectedNode == null) {
             initialX = mouseEvent.getX();
             initialY = mouseEvent.getY();
 
@@ -256,7 +263,7 @@ public class BuilderController {
         Figure fig2 = getFigureAt(mouseEvent.getX(), mouseEvent.getY());
 
         // si esa figura no es un nodo o es el que ya elegimos entonces deja de dibujar el borrador de arista
-        if(!(fig2 instanceof Node nodo2) || nodo2 == selectedNode || selectedNode == null){
+        if (!(fig2 instanceof Node nodo2) || nodo2 == selectedNode || selectedNode == null) {
             initialX = null;
             initialY = null;
             selectedNode = null;
@@ -271,8 +278,8 @@ public class BuilderController {
         // 2. si la fig recuperada es un nodo, checamos si es el nodo de inicio o final de la arista, si lo son
         //     entonces añadimos la arista a su lista de aristas propia
         Edge arista = new Edge(selectedNode, nodo2);
-        for(Figure figure : figures){
-            if(figure instanceof Edge aristaTemp && aristaTemp.doesExist(selectedNode, nodo2)){
+        for (Figure figure : figures) {
+            if (figure instanceof Edge aristaTemp && aristaTemp.doesExist(selectedNode, nodo2)) {
                 initialX = null;
                 initialY = null;
                 selectedNode = null;
@@ -281,7 +288,7 @@ public class BuilderController {
                 return;
             }
 
-            if(figure == selectedNode || figure == nodo2){
+            if (figure == selectedNode || figure == nodo2) {
                 ((Node) figure).addToEdgeList(arista);
             }
         }
@@ -303,7 +310,7 @@ public class BuilderController {
         setDrawEdgeStatus();
     }
 
-    private void removeHandlers(){
+    private void removeHandlers() {
         canvas.setOnMouseClicked(null);
         canvas.setOnMouseDragged(null);
         canvas.setOnMouseReleased(null);
@@ -319,7 +326,7 @@ public class BuilderController {
      * Vacía el canvas y lo deja como nuevo
      */
     @FXML
-    private void nuevoArchivo(){
+    private void nuevoArchivo() {
         archivoGrafo = null;
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
@@ -329,19 +336,19 @@ public class BuilderController {
         nodeCounterLabel.setText("0");
         edgeCounterLabel.setText("0");
 
-        for(NodeController nodeMenu : nodeMenusOpen){
+        for (NodeController nodeMenu : nodeMenusOpen) {
             nodeMenu.cerrarVentana();
         }
         nodeMenusOpen.clear();
 
-        for(EdgeController edgeMenu : edgeMenusOpen){
+        for (EdgeController edgeMenu : edgeMenusOpen) {
             edgeMenu.cerrarVentana();
         }
         edgeMenusOpen.clear();
     }
 
     @FXML
-    private void abrirArchivo(){
+    private void abrirArchivo() {
         nuevoArchivo();
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Abrir Archivo");
@@ -350,10 +357,10 @@ public class BuilderController {
         leerContenidoArchivo();
     }
 
-    private void leerContenidoArchivo(){
+    private void leerContenidoArchivo() {
         int filaMatriz = 0;
         ArrayList<Edge> edgeList = new ArrayList<>();
-        try  {
+        try {
             BufferedReader br = new BufferedReader(new FileReader(archivoGrafo));
             String linea;
             boolean leyendoCoordenadas = true;
@@ -416,7 +423,7 @@ public class BuilderController {
                     filaMatriz++;  // Aumenta después de cada fila de la matriz
                 }
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -425,8 +432,8 @@ public class BuilderController {
 
 
     @FXML
-    private void guardarArchivo(){
-        if(archivoGrafo == null){
+    private void guardarArchivo() {
+        if (archivoGrafo == null) {
             saveToCSV();
             return;
         }
@@ -514,7 +521,7 @@ public class BuilderController {
 
     /**
      * Me quiero matar bro
-     * */
+     */
     @FXML
     private void CanvasToPng() {
         Stage stage = (Stage) canvas.getScene().getWindow();
@@ -570,6 +577,34 @@ public class BuilderController {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void exitApp() {
+
+    }
+
+    /************************************
+     ************ SHORTCUTS ************* 
+     ***********************************/
+    
+    public void shortcuts() {
+        scene.setOnKeyPressed( keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.N && keyEvent.isControlDown()) {
+                nuevoArchivo();
+            }
+            if (keyEvent.getCode() == KeyCode.O && keyEvent.isControlDown()) {
+                abrirArchivo();
+            }
+            if (keyEvent.getCode() == KeyCode.S && keyEvent.isControlDown()) {
+                guardarArchivo();
+            }
+            if (keyEvent.getCode() == KeyCode.S && keyEvent.isControlDown() && keyEvent.isShiftDown()) {
+                saveToCSV();
+            }
+            if (keyEvent.getCode() == KeyCode.P && keyEvent.isControlDown()) {
+                CanvasToPng();
+            }
+        });
     }
 
     /************************************
