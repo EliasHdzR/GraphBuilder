@@ -49,7 +49,7 @@
         </Menu>
     </MenuBar>
     <ToolBar fx:id="toolBar" prefHeight="41.0" prefWidth="600.0">
-        <Button mnemonicParsing="false" onAction="#setMovingShapesStatus" prefHeight="25.0" prefWidth="28.0">
+        <Button mnemonicParsing="false" onAction="#setMovingShapesStatus" prefHeight="25.0" prefWidth="28.0" fx:id="moveShapesButton">
             <tooltip>
                 <Tooltip text="Mover Figuras"/>
             </tooltip>
@@ -60,7 +60,7 @@
             </graphic>
         </Button>
         <Separator orientation="VERTICAL" prefHeight="0.0" prefWidth="0.0"/>
-        <Button mnemonicParsing="false" onAction="#setOpenFigureMenuStatus" prefHeight="25.0" prefWidth="28.0">
+        <Button mnemonicParsing="false" onAction="#setOpenFigureMenuStatus" prefHeight="25.0" prefWidth="28.0" fx:id="openMenusButton">
             <tooltip>
                 <Tooltip text="Editar Propiedades"/>
             </tooltip>
@@ -70,7 +70,7 @@
                 </ImageView>
             </graphic>
         </Button>
-        <Button mnemonicParsing="false" onAction="#setDeleteFigureStatus" prefHeight="25.0" prefWidth="28.0">
+        <Button mnemonicParsing="false" onAction="#setDeleteFigureStatus" prefHeight="25.0" prefWidth="28.0" fx:id="deleteShapesButton">
             <tooltip>
                 <Tooltip text="Eliminar Figuras"/>
             </tooltip>
@@ -81,7 +81,7 @@
             </graphic>
         </Button>
         <Separator orientation="VERTICAL" prefHeight="0.0" prefWidth="0.0"/>
-        <Button mnemonicParsing="false" onAction="#setDrawNodeStatus" prefHeight="25.0" prefWidth="28.0">
+        <Button mnemonicParsing="false" onAction="#setDrawNodeStatus" prefHeight="25.0" prefWidth="28.0" fx:id="drawNodeButton">
             <tooltip>
                 <Tooltip text="Nodo"/>
             </tooltip>
@@ -91,7 +91,7 @@
                 </ImageView>
             </graphic>
         </Button>
-        <Button mnemonicParsing="false" onAction="#setDrawEdgeStatus" prefHeight="25.0" prefWidth="28.0">
+        <Button mnemonicParsing="false" onAction="#setDrawEdgeStatus" prefHeight="25.0" prefWidth="28.0" fx:id="drawEdgeButton">
             <tooltip>
                 <Tooltip text="Arista"/>
             </tooltip>
