@@ -16,6 +16,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ToolBar;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.image.WritableImage;
 import javafx.scene.SnapshotParameters;
@@ -45,19 +46,27 @@ public class BuilderController {
     private int[][] adjacencyMatrix;
 
     // elementos de la gui
-    @FXML private Canvas canvas;
-    @FXML private ToolBar toolBar;
-    @FXML private Label nodeCounterLabel;
-    @FXML private Label edgeCounterLabel;
+    @FXML
+    private Canvas canvas;
+    @FXML
+    private ToolBar toolBar;
+    @FXML
+    private Label nodeCounterLabel;
+    @FXML
+    private Label edgeCounterLabel;
 
     // botones de la barra de herramientas
-    @FXML private Button moveShapesButton;
-    @FXML private Button openMenusButton;
-    @FXML private Button deleteShapesButton;
-    @FXML private Button drawNodeButton;
-    @FXML private Button drawEdgeButton;
+    @FXML
+    private Button moveShapesButton;
+    @FXML
+    private Button openMenusButton;
+    @FXML
+    private Button deleteShapesButton;
+    @FXML
+    private Button drawNodeButton;
+    @FXML
+    private Button drawEdgeButton;
     private final ArrayList<Button> buttons = new ArrayList<>();
-
 
     @FXML
     public void initialize() {
@@ -76,17 +85,38 @@ public class BuilderController {
      ************************************/
 
     @FXML
-    protected void setMovingShapesStatus(){
+    protected void setMovingShapesStatus() {
         removeHandlers();
         setDefaultStyle();
         setActiveStyle(moveShapesButton);
 
         scene = canvas.getScene();
+        /* if(scene == null){
+            System.out.println("Es null");
+        }else{
+            System.out.println("Noes");
+        } */
         canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.OPEN_HAND));
         canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
 
         canvas.setOnMouseDragged(this::moveShape);
         canvas.setOnMouseReleased(this::endMoveShape);
+    }
+
+    public void shortcuts(Scene scene) {
+        scene.setOnKeyPressed(keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.H) {
+                System.err.println("Hola");
+            }
+        });
+    }
+
+    private void shortcuts() {
+        scene.setOnKeyPressed(keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.H) {
+                System.err.println("Hola");
+            }
+        });
     }
 
     private void moveShape(MouseEvent mouseEvent) {
@@ -95,7 +125,7 @@ public class BuilderController {
         double y = mouseEvent.getY();
         Figure figura = getFigureAt(x, y);
 
-        if(!(figura instanceof Node nodo)){
+        if (!(figura instanceof Node nodo)) {
             return;
         }
 
@@ -109,7 +139,7 @@ public class BuilderController {
     }
 
     @FXML
-    private void setDeleteFigureStatus(){
+    private void setDeleteFigureStatus() {
         removeHandlers();
         setDefaultStyle();
         setActiveStyle(deleteShapesButton);
@@ -126,9 +156,9 @@ public class BuilderController {
         Figure figure = getFigureAt(x, y);
 
         // si es un nodo tmb hay que borrar todas las aristas que van hacia este nodo
-        if(figure instanceof Node nodo){
+        if (figure instanceof Node nodo) {
             List<Edge> nodoEdgeList = nodo.getEdgeList();
-            for(Edge edge : nodoEdgeList){
+            for (Edge edge : nodoEdgeList) {
                 figures.remove(edge);
             }
         }
@@ -139,7 +169,7 @@ public class BuilderController {
     }
 
     @FXML
-    private void setOpenFigureMenuStatus(){
+    private void setOpenFigureMenuStatus() {
         removeHandlers();
         setDefaultStyle();
         setActiveStyle(openMenusButton);
@@ -154,28 +184,30 @@ public class BuilderController {
         double y = mouseEvent.getY();
         Figure figure = getFigureAt(x, y);
 
-        if(figure == null){
+        if (figure == null) {
             return;
         }
 
-        if(figure instanceof Node nodo){
+        if (figure instanceof Node nodo) {
             openNodeMenu(nodo);
         }
     }
 
     private void openNodeMenu(Node nodo) {
-        // checamos si ya esta abierto, si lo está entonces traemos la ventana al plano principal
+        // checamos si ya esta abierto, si lo está entonces traemos la ventana al plano
+        // principal
         for (NodeController controlador : nodeMenusOpen) {
             if (controlador.getNodo() == nodo) {
                 controlador.requestFocus();
                 return;
             }
         }
-        // si no pues lo abrimos en una ventana nueva y lo agregamos a los menus abiertos
+        // si no pues lo abrimos en una ventana nueva y lo agregamos a los menus
+        // abiertos
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("menuNodo.fxml"));
             Stage stage = new Stage();
-            NodeController nodoControlador = new NodeController(nodo,stage,this);
+            NodeController nodoControlador = new NodeController(nodo, stage, this);
             fxmlLoader.setController(nodoControlador);
             Scene scene = new Scene(fxmlLoader.load());
             nodeMenusOpen.add(nodoControlador);
@@ -192,7 +224,7 @@ public class BuilderController {
     }
 
     @FXML
-    protected void setDrawNodeStatus(){
+    protected void setDrawNodeStatus() {
         removeHandlers();
         setDefaultStyle();
         setActiveStyle(drawNodeButton);
@@ -206,6 +238,7 @@ public class BuilderController {
 
     /**
      * Crea un nodo en el lugar en donde se hizo click
+     * 
      * @param mouseEvent La accion del mouse
      */
     private void drawNode(MouseEvent mouseEvent) {
@@ -221,7 +254,7 @@ public class BuilderController {
     }
 
     @FXML
-    protected void setDrawEdgeStatus(){
+    protected void setDrawEdgeStatus() {
         removeHandlers();
         setDefaultStyle();
         setActiveStyle(drawEdgeButton);
@@ -230,11 +263,11 @@ public class BuilderController {
         canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.CROSSHAIR));
         canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
         canvas.setOnMouseDragged(this::drawEdge);
-        canvas.setOnMouseReleased(this::endDrawEdge);   
+        canvas.setOnMouseReleased(this::endDrawEdge);
     }
 
     private void drawEdge(MouseEvent mouseEvent) {
-        if(initialX == null && initialY == null && selectedNode == null){
+        if (initialX == null && initialY == null && selectedNode == null) {
             initialX = mouseEvent.getX();
             initialY = mouseEvent.getY();
 
@@ -254,11 +287,13 @@ public class BuilderController {
     }
 
     private void endDrawEdge(MouseEvent mouseEvent) {
-        //recuperamos la figura en la que se dejó de mantener presionado el clic izquirdo
+        // recuperamos la figura en la que se dejó de mantener presionado el clic
+        // izquirdo
         Figure fig2 = getFigureAt(mouseEvent.getX(), mouseEvent.getY());
 
-        // si esa figura no es un nodo o es el que ya elegimos entonces deja de dibujar el borrador de arista
-        if(!(fig2 instanceof Node nodo2) || nodo2 == selectedNode || selectedNode == null){
+        // si esa figura no es un nodo o es el que ya elegimos entonces deja de dibujar
+        // el borrador de arista
+        if (!(fig2 instanceof Node nodo2) || nodo2 == selectedNode || selectedNode == null) {
             initialX = null;
             initialY = null;
             selectedNode = null;
@@ -267,14 +302,16 @@ public class BuilderController {
             return;
         }
 
-        //creamos la arista y por cada figura en la lista:
-        // 1. si la fig recuperada de la lista es una arista, tenemos que checar si entre los dos nodos elegidos
-        //     ya existe una arista que los una, si sí, cancelamos el dibujado completamente
-        // 2. si la fig recuperada es un nodo, checamos si es el nodo de inicio o final de la arista, si lo son
-        //     entonces añadimos la arista a su lista de aristas propia
+        // creamos la arista y por cada figura en la lista:
+        // 1. si la fig recuperada de la lista es una arista, tenemos que checar si
+        // entre los dos nodos elegidos
+        // ya existe una arista que los una, si sí, cancelamos el dibujado completamente
+        // 2. si la fig recuperada es un nodo, checamos si es el nodo de inicio o final
+        // de la arista, si lo son
+        // entonces añadimos la arista a su lista de aristas propia
         Edge arista = new Edge(selectedNode, nodo2);
-        for(Figure figure : figures){
-            if(figure instanceof Edge aristaTemp && aristaTemp.doesExist(selectedNode, nodo2)){
+        for (Figure figure : figures) {
+            if (figure instanceof Edge aristaTemp && aristaTemp.doesExist(selectedNode, nodo2)) {
                 initialX = null;
                 initialY = null;
                 selectedNode = null;
@@ -283,12 +320,13 @@ public class BuilderController {
                 return;
             }
 
-            if(figure == selectedNode || figure == nodo2){
+            if (figure == selectedNode || figure == nodo2) {
                 ((Node) figure).addToEdgeList(arista);
             }
         }
 
-        // añadimos la arista a la lista y la dibujamos, posteriormente reiniciamos el estado de dibujo
+        // añadimos la arista a la lista y la dibujamos, posteriormente reiniciamos el
+        // estado de dibujo
         figures.add(arista);
         drawShapes();
 
@@ -305,7 +343,7 @@ public class BuilderController {
         setDrawEdgeStatus();
     }
 
-    private void removeHandlers(){
+    private void removeHandlers() {
         canvas.setOnMouseClicked(null);
         canvas.setOnMouseDragged(null);
         canvas.setOnMouseReleased(null);
@@ -321,7 +359,7 @@ public class BuilderController {
      * Vacía el canvas y lo deja como nuevo
      */
     @FXML
-    private void nuevoArchivo(){
+    private void nuevoArchivo() {
         archivoGrafo = null;
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
@@ -331,19 +369,19 @@ public class BuilderController {
         nodeCounterLabel.setText("0");
         edgeCounterLabel.setText("0");
 
-        for(NodeController nodeMenu : nodeMenusOpen){
+        for (NodeController nodeMenu : nodeMenusOpen) {
             nodeMenu.cerrarVentana();
         }
         nodeMenusOpen.clear();
 
-        for(EdgeController edgeMenu : edgeMenusOpen){
+        for (EdgeController edgeMenu : edgeMenusOpen) {
             edgeMenu.cerrarVentana();
         }
         edgeMenusOpen.clear();
     }
 
     @FXML
-    private void abrirArchivo(){
+    private void abrirArchivo() {
         nuevoArchivo();
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Abrir Archivo");
@@ -352,17 +390,18 @@ public class BuilderController {
         leerContenidoArchivo();
     }
 
-    private void leerContenidoArchivo(){
+    private void leerContenidoArchivo() {
         int filaMatriz = 0;
         ArrayList<Edge> edgeList = new ArrayList<>();
-        try  {
+        try {
             BufferedReader br = new BufferedReader(new FileReader(archivoGrafo));
             String linea;
             boolean leyendoCoordenadas = true;
 
             while ((linea = br.readLine()) != null) {
                 linea = linea.trim();
-                if (linea.isEmpty()) continue;
+                if (linea.isEmpty())
+                    continue;
 
                 if (leyendoCoordenadas) {
                     if (linea.startsWith(";")) {
@@ -415,10 +454,10 @@ public class BuilderController {
                             }
                         }
                     }
-                    filaMatriz++;  // Aumenta después de cada fila de la matriz
+                    filaMatriz++; // Aumenta después de cada fila de la matriz
                 }
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -426,8 +465,8 @@ public class BuilderController {
     }
 
     @FXML
-    private void guardarArchivo(){
-        if(archivoGrafo == null){
+    private void guardarArchivo() {
+        if (archivoGrafo == null) {
             saveToCSV();
             return;
         }
@@ -462,7 +501,7 @@ public class BuilderController {
         }
     }
 
-    //Funcion que guarda en el CSV y muestra el Chooser
+    // Funcion que guarda en el CSV y muestra el Chooser
     @FXML
     private void saveToCSV() {
         FileChooser fileChooser = new FileChooser();
@@ -485,7 +524,7 @@ public class BuilderController {
         }
     }
 
-    //guarda la matriz en csv
+    // guarda la matriz en csv
     private void saveMatrixToCSV(String fileName) throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
             for (Node node : nodeList) {
@@ -514,7 +553,7 @@ public class BuilderController {
 
     /**
      * Me quiero matar bro
-     * */
+     */
     @FXML
     private void CanvasToPng() {
         Stage stage = (Stage) canvas.getScene().getWindow();
@@ -579,7 +618,7 @@ public class BuilderController {
      * Redibuja todas las figuras en el canvas para actualizar sus posiciones
      * y actualiza el label inferior
      */
-    public void drawShapes(){
+    public void drawShapes() {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         int nodeCount = 0;
@@ -587,9 +626,9 @@ public class BuilderController {
 
         for (Figure figure : figures) {
             figure.draw(gc);
-            if(figure instanceof Node){
+            if (figure instanceof Node) {
                 nodeCount++;
-            } else if(figure instanceof Edge){
+            } else if (figure instanceof Edge) {
                 edgeCount++;
             }
         }
@@ -600,13 +639,14 @@ public class BuilderController {
 
     /**
      * Obtiene la figura que contenga las coordenadas del evento
+     * 
      * @param x Coordenada x del click
      * @param y Coordenada y del click
      * @return Una figura
      */
-    private Figure getFigureAt(double x, double y){
+    private Figure getFigureAt(double x, double y) {
         for (Figure figure : figures) {
-            if(figure.contains(x, y)) {
+            if (figure.contains(x, y)) {
                 return figure;
             }
         }
@@ -618,12 +658,12 @@ public class BuilderController {
      ************ ESTILOS ***************
      ************************************/
 
-    private void setActiveStyle(Button button){
+    private void setActiveStyle(Button button) {
         button.setStyle("-fx-background-color: #7298d6;");
     }
 
-    private void setDefaultStyle(){
-        for(Button button: buttons){
+    private void setDefaultStyle() {
+        for (Button button : buttons) {
             button.setStyle("");
         }
     }
