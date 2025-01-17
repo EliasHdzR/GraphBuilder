@@ -56,13 +56,17 @@ public class BuilderController {
     private Label edgeCounterLabel;
 
     // botones de la barra de herramientas
-    @FXML private Button moveShapesButton;
-    @FXML private Button openMenusButton;
-    @FXML private Button deleteShapesButton;
-    @FXML private Button drawNodeButton;
-    @FXML private Button drawEdgeButton;
+    @FXML
+    private Button moveShapesButton;
+    @FXML
+    private Button openMenusButton;
+    @FXML
+    private Button deleteShapesButton;
+    @FXML
+    private Button drawNodeButton;
+    @FXML
+    private Button drawEdgeButton;
     private final ArrayList<Button> buttons = new ArrayList<>();
-
 
     @FXML
     public void initialize() {
@@ -73,7 +77,6 @@ public class BuilderController {
         buttons.add(drawEdgeButton);
 
         toolBar.setCursor(Cursor.DEFAULT);
-        shortcuts();
         setMovingShapesStatus();
     }
 
@@ -88,11 +91,32 @@ public class BuilderController {
         setActiveStyle(moveShapesButton);
 
         scene = canvas.getScene();
+        /* if(scene == null){
+            System.out.println("Es null");
+        }else{
+            System.out.println("Noes");
+        } */
         canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.OPEN_HAND));
         canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
 
         canvas.setOnMouseDragged(this::moveShape);
         canvas.setOnMouseReleased(this::endMoveShape);
+    }
+
+    public void shortcuts(Scene scene) {
+        scene.setOnKeyPressed(keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.H) {
+                System.err.println("Hola");
+            }
+        });
+    }
+
+    private void shortcuts() {
+        scene.setOnKeyPressed(keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.H) {
+                System.err.println("Hola");
+            }
+        });
     }
 
     private void moveShape(MouseEvent mouseEvent) {
@@ -170,14 +194,16 @@ public class BuilderController {
     }
 
     private void openNodeMenu(Node nodo) {
-        // checamos si ya esta abierto, si lo está entonces traemos la ventana al plano principal
+        // checamos si ya esta abierto, si lo está entonces traemos la ventana al plano
+        // principal
         for (NodeController controlador : nodeMenusOpen) {
             if (controlador.getNodo() == nodo) {
                 controlador.requestFocus();
                 return;
             }
         }
-        // si no pues lo abrimos en una ventana nueva y lo agregamos a los menus abiertos
+        // si no pues lo abrimos en una ventana nueva y lo agregamos a los menus
+        // abiertos
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("menuNodo.fxml"));
             Stage stage = new Stage();
@@ -261,10 +287,12 @@ public class BuilderController {
     }
 
     private void endDrawEdge(MouseEvent mouseEvent) {
-        //recuperamos la figura en la que se dejó de mantener presionado el clic izquirdo
+        // recuperamos la figura en la que se dejó de mantener presionado el clic
+        // izquirdo
         Figure fig2 = getFigureAt(mouseEvent.getX(), mouseEvent.getY());
 
-        // si esa figura no es un nodo o es el que ya elegimos entonces deja de dibujar el borrador de arista
+        // si esa figura no es un nodo o es el que ya elegimos entonces deja de dibujar
+        // el borrador de arista
         if (!(fig2 instanceof Node nodo2) || nodo2 == selectedNode || selectedNode == null) {
             initialX = null;
             initialY = null;
@@ -274,11 +302,13 @@ public class BuilderController {
             return;
         }
 
-        //creamos la arista y por cada figura en la lista:
-        // 1. si la fig recuperada de la lista es una arista, tenemos que checar si entre los dos nodos elegidos
-        //     ya existe una arista que los una, si sí, cancelamos el dibujado completamente
-        // 2. si la fig recuperada es un nodo, checamos si es el nodo de inicio o final de la arista, si lo son
-        //     entonces añadimos la arista a su lista de aristas propia
+        // creamos la arista y por cada figura en la lista:
+        // 1. si la fig recuperada de la lista es una arista, tenemos que checar si
+        // entre los dos nodos elegidos
+        // ya existe una arista que los una, si sí, cancelamos el dibujado completamente
+        // 2. si la fig recuperada es un nodo, checamos si es el nodo de inicio o final
+        // de la arista, si lo son
+        // entonces añadimos la arista a su lista de aristas propia
         Edge arista = new Edge(selectedNode, nodo2);
         for (Figure figure : figures) {
             if (figure instanceof Edge aristaTemp && aristaTemp.doesExist(selectedNode, nodo2)) {
@@ -295,7 +325,8 @@ public class BuilderController {
             }
         }
 
-        // añadimos la arista a la lista y la dibujamos, posteriormente reiniciamos el estado de dibujo
+        // añadimos la arista a la lista y la dibujamos, posteriormente reiniciamos el
+        // estado de dibujo
         figures.add(arista);
         drawShapes();
 
@@ -369,7 +400,8 @@ public class BuilderController {
 
             while ((linea = br.readLine()) != null) {
                 linea = linea.trim();
-                if (linea.isEmpty()) continue;
+                if (linea.isEmpty())
+                    continue;
 
                 if (leyendoCoordenadas) {
                     if (linea.startsWith(";")) {
@@ -422,7 +454,7 @@ public class BuilderController {
                             }
                         }
                     }
-                    filaMatriz++;  // Aumenta después de cada fila de la matriz
+                    filaMatriz++; // Aumenta después de cada fila de la matriz
                 }
             }
         } catch (Exception e) {
@@ -469,7 +501,7 @@ public class BuilderController {
         }
     }
 
-    //Funcion que guarda en el CSV y muestra el Chooser
+    // Funcion que guarda en el CSV y muestra el Chooser
     @FXML
     private void saveToCSV() {
         FileChooser fileChooser = new FileChooser();
@@ -492,7 +524,7 @@ public class BuilderController {
         }
     }
 
-    //guarda la matriz en csv
+    // guarda la matriz en csv
     private void saveMatrixToCSV(String fileName) throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
             for (Node node : nodeList) {
@@ -614,7 +646,7 @@ public class BuilderController {
      * Redibuja todas las figuras en el canvas para actualizar sus posiciones
      * y actualiza el label inferior
      */
-    public void drawShapes(){
+    public void drawShapes() {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         int nodeCount = 0;
@@ -622,9 +654,9 @@ public class BuilderController {
 
         for (Figure figure : figures) {
             figure.draw(gc);
-            if(figure instanceof Node){
+            if (figure instanceof Node) {
                 nodeCount++;
-            } else if(figure instanceof Edge){
+            } else if (figure instanceof Edge) {
                 edgeCount++;
             }
         }
@@ -635,13 +667,14 @@ public class BuilderController {
 
     /**
      * Obtiene la figura que contenga las coordenadas del evento
+     *
      * @param x Coordenada x del click
      * @param y Coordenada y del click
      * @return Una figura
      */
-    private Figure getFigureAt(double x, double y){
+    private Figure getFigureAt(double x, double y) {
         for (Figure figure : figures) {
-            if(figure.contains(x, y)) {
+            if (figure.contains(x, y)) {
                 return figure;
             }
         }
@@ -653,12 +686,12 @@ public class BuilderController {
      ************ ESTILOS ***************
      ************************************/
 
-    private void setActiveStyle(Button button){
+    private void setActiveStyle(Button button) {
         button.setStyle("-fx-background-color: #7298d6;");
     }
 
-    private void setDefaultStyle(){
-        for(Button button: buttons){
+    private void setDefaultStyle() {
+        for (Button button : buttons) {
             button.setStyle("");
         }
     }
