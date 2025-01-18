@@ -18,6 +18,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.robot.Robot;
 import javafx.scene.image.WritableImage;
 import javafx.scene.SnapshotParameters;
 
@@ -42,7 +43,7 @@ public class BuilderController {
     private Double initialY = null;
     private Node selectedNode = null;
     private File archivoGrafo = null;
-    private Node selectNode = null;
+    private Node clipboard = null;
     private Figure selectFigure = null;
     private final List<Node> nodeList = new ArrayList<>();
     private int[][] adjacencyMatrix;
@@ -110,8 +111,10 @@ public class BuilderController {
 
     public void shortcuts(Scene scene) {
         scene.setOnKeyPressed(keyEvent -> {
-            if (keyEvent.getCode() == KeyCode.H) {
-                System.err.println("Hola");
+            if (keyEvent.getCode() == KeyCode.C && keyEvent.isControlDown()) {
+                copy(); 
+            }else if(keyEvent.getCode() == KeyCode.V && keyEvent.isControlDown()){
+                paste();
             }else if(keyEvent.getCode() == KeyCode.DELETE){
                 suprFigure();
             }
@@ -248,10 +251,7 @@ public class BuilderController {
         CircleCenter circleCenter = new CircleCenter(x, y);
         Node node = new Node(circleCenter, nodeList.size()+1);
         figures.add(node);
-
-        selectNode = node;
         selectFigure = node;
-
         nodeList.add(node);
         initializeMatrix();
         drawShapes();
@@ -699,9 +699,37 @@ public class BuilderController {
             }
             figures.remove(selectFigure);
             selectFigure = null;
-            selectNode = null;
             drawShapes();
         }
     }
 
+    private void copy(){
+        if(selectFigure instanceof Node node){
+            /*
+             * Cuando acabas de correr el programa aveces  no copia nada 
+             * y no se porque pero x somos chavos mejor vamos a chelear 
+             * con toda la bandita caguamera.
+             */
+            clipboard = node;
+        }
+    }
+
+    private void paste(){
+        if(clipboard != null){
+            Robot robot = new Robot();
+            /*
+             * No se por que se le restan esas cantidades, solo se que
+             * por alguna razon siempre le suma eso a la posicion del
+             * mouse 
+             */
+            double x = robot.getMousePosition().getX() - 321;
+            double y = robot.getMousePosition().getY() - 278;
+            CircleCenter circleCenter = new CircleCenter(x, y);
+            Node node = new Node(clipboard.getName(), circleCenter);
+            figures.add(node);
+            nodeList.add(node);
+            initializeMatrix();
+            drawShapes();
+        }
+    }
 }
