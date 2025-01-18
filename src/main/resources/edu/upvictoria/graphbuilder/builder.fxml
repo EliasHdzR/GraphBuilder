@@ -32,9 +32,9 @@
             <SeparatorMenuItem mnemonicParsing="false"/>
             <MenuItem mnemonicParsing="false"
                       text="Cortar                                                  Ctrl+X"/>
-            <MenuItem mnemonicParsing="false"
+            <MenuItem mnemonicParsing="false" onAction="#copy"
                       text="Copiar                                                  Ctrl+C"/>
-            <MenuItem mnemonicParsing="false"
+            <MenuItem mnemonicParsing="false" onAction="#paste"
                       text="Pegar                                                   Ctrl+V"/>
             <SeparatorMenuItem mnemonicParsing="false"/>
         </Menu>

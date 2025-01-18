@@ -117,6 +117,9 @@ public class BuilderController {
                 paste();
             }else if(keyEvent.getCode() == KeyCode.DELETE){
                 suprFigure();
+            }else if(keyEvent.getCode() == KeyCode.X && keyEvent.isControlDown()){
+                copy();
+                suprFigure();
             }
         });
     }
@@ -703,10 +706,11 @@ public class BuilderController {
         }
     }
 
+    @FXML
     private void copy(){
         if(selectFigure instanceof Node node){
             /*
-             * Cuando acabas de correr el programa aveces  no copia nada 
+             * Cuando acabas de correr el programa aveces no copia nada 
              * y no se porque pero x somos chavos mejor vamos a chelear 
              * con toda la bandita caguamera.
              */
@@ -714,20 +718,22 @@ public class BuilderController {
         }
     }
 
+    @FXML
     private void paste(){
         if(clipboard != null){
             Robot robot = new Robot();
             /*
              * No se por que se le restan esas cantidades, solo se que
              * por alguna razon siempre le suma eso a la posicion del
-             * mouse 
+             * mouse. 
              */
             double x = robot.getMousePosition().getX() - 321;
             double y = robot.getMousePosition().getY() - 278;
             CircleCenter circleCenter = new CircleCenter(x, y);
-            Node node = new Node(clipboard.getName(), circleCenter);
+            Node node = new Node(clipboard.getName() + " Copy", circleCenter);
             figures.add(node);
             nodeList.add(node);
+            selectFigure = node;
             initializeMatrix();
             drawShapes();
         }
