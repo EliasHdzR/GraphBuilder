@@ -42,6 +42,8 @@ public class BuilderController {
     private Double initialY = null;
     private Node selectedNode = null;
     private File archivoGrafo = null;
+    private Node selectNode = null;
+    private Figure selectFigure = null;
     private final List<Node> nodeList = new ArrayList<>();
     private int[][] adjacencyMatrix;
 
@@ -91,14 +93,17 @@ public class BuilderController {
         setActiveStyle(moveShapesButton);
 
         scene = canvas.getScene();
-        /* if(scene == null){
-            System.out.println("Es null");
-        }else{
-            System.out.println("Noes");
-        } */
+        /*
+         * if(scene == null){
+         * System.out.println("Es null");
+         * }else{
+         * System.out.println("Noes");
+         * }
+         */
         canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.OPEN_HAND));
         canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
 
+        canvas.setOnMouseClicked(this::clickFigure);
         canvas.setOnMouseDragged(this::moveShape);
         canvas.setOnMouseReleased(this::endMoveShape);
     }
@@ -107,14 +112,8 @@ public class BuilderController {
         scene.setOnKeyPressed(keyEvent -> {
             if (keyEvent.getCode() == KeyCode.H) {
                 System.err.println("Hola");
-            }
-        });
-    }
-
-    private void shortcuts() {
-        scene.setOnKeyPressed(keyEvent -> {
-            if (keyEvent.getCode() == KeyCode.H) {
-                System.err.println("Hola");
+            }else if(keyEvent.getCode() == KeyCode.DELETE){
+                suprFigure();
             }
         });
     }
@@ -125,10 +124,11 @@ public class BuilderController {
         double y = mouseEvent.getY();
         Figure figura = getFigureAt(x, y);
 
+        selectFigure = figura;
+
         if (!(figura instanceof Node nodo)) {
             return;
         }
-
         nodo.move(x, y);
         drawShapes();
     }
@@ -187,7 +187,7 @@ public class BuilderController {
         if (figure == null) {
             return;
         }
-
+        selectFigure = figure;
         if (figure instanceof Node nodo) {
             openNodeMenu(nodo);
         }
@@ -246,8 +246,12 @@ public class BuilderController {
         double y = mouseEvent.getY();
 
         CircleCenter circleCenter = new CircleCenter(x, y);
-        Node node = new Node(circleCenter);
+        Node node = new Node(circleCenter, nodeList.size()+1);
         figures.add(node);
+
+        selectNode = node;
+        selectFigure = node;
+
         nodeList.add(node);
         initializeMatrix();
         drawShapes();
@@ -328,6 +332,7 @@ public class BuilderController {
         // añadimos la arista a la lista y la dibujamos, posteriormente reiniciamos el
         // estado de dibujo
         figures.add(arista);
+        selectFigure = arista;
         drawShapes();
 
         int fromIndex = nodeList.indexOf(selectedNode);
@@ -667,4 +672,36 @@ public class BuilderController {
             button.setStyle("");
         }
     }
+
+    /************************************
+     ************ EDITAR ***************
+     ************************************/
+
+    private void clickFigure(MouseEvent mouseEvent){
+        /*
+         * Esto existe para cuando se clikea una figura pero no se mueve
+         */
+        double x = mouseEvent.getX();
+        double y = mouseEvent.getY();
+        Figure figure = getFigureAt(x, y);
+
+        selectFigure = figure;
+        
+    }
+
+    private void suprFigure() {
+        if (selectFigure != null) {
+            if (selectFigure instanceof Node nodo) {
+                List<Edge> nodoEdgeList = nodo.getEdgeList();
+                for (Edge edge : nodoEdgeList) {
+                    figures.remove(edge);
+                }
+            }
+            figures.remove(selectFigure);
+            selectFigure = null;
+            selectNode = null;
+            drawShapes();
+        }
+    }
+
 }

@@ -37,8 +37,6 @@
             <MenuItem mnemonicParsing="false"
                       text="Pegar                                                   Ctrl+V"/>
             <SeparatorMenuItem mnemonicParsing="false"/>
-            <MenuItem mnemonicParsing="false"
-                      text="Borrar                                                    Supr"/>
         </Menu>
         <Menu mnemonicParsing="false" text="Accesibilidad">
             <MenuItem mnemonicParsing="false" text="Activar control por seguimiento ocular"/>

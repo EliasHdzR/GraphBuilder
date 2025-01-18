@@ -12,9 +12,9 @@ public class Node implements Figure {
     private final static double mRadius = 8 ;
     private final List<Edge> edgeList = new ArrayList<>();
 
-    public Node(CircleCenter center) {
+    public Node(CircleCenter center, Integer size) {
         this.mCenter = center;
-        this.name = "Nodo";
+        this.name = "Nodo" + size.toString();
     }
 
     public Node(String nombre, CircleCenter center) {
