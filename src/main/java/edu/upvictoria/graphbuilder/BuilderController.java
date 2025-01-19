@@ -16,6 +16,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToolBar;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 
 import javafx.scene.layout.Pane;
@@ -55,7 +56,6 @@ public class BuilderController {
     @FXML private Button drawEdgeButton;
     private final ArrayList<Button> buttons = new ArrayList<>();
 
-
     @FXML
     public void initialize() {
         fileTitleLabel.setText("Nuevo Archivo");
@@ -75,7 +75,7 @@ public class BuilderController {
      ************************************/
 
     @FXML
-    protected void setMovingShapesStatus(){
+    protected void setMovingShapesStatus() {
         removeHandlers();
         setDefaultStyle();
         setActiveStyle(moveShapesButton);
@@ -94,7 +94,7 @@ public class BuilderController {
         double y = mouseEvent.getY();
         Figure figura = getFigureAt(x, y);
 
-        if(!(figura instanceof Node nodo)){
+        if (!(figura instanceof Node nodo)) {
             return;
         }
 
@@ -108,7 +108,7 @@ public class BuilderController {
     }
 
     @FXML
-    private void setDeleteFigureStatus(){
+    private void setDeleteFigureStatus() {
         removeHandlers();
         setDefaultStyle();
         setActiveStyle(deleteShapesButton);
@@ -130,7 +130,7 @@ public class BuilderController {
             nodeList.remove(nodo);
 
             List<Edge> nodoEdgeList = nodo.getEdgeList();
-            for(Edge edge : nodoEdgeList){
+            for (Edge edge : nodoEdgeList) {
                 figures.remove(edge);
             }
 
@@ -156,7 +156,7 @@ public class BuilderController {
     }
 
     @FXML
-    private void setOpenFigureMenuStatus(){
+    private void setOpenFigureMenuStatus() {
         removeHandlers();
         setDefaultStyle();
         setActiveStyle(openMenusButton);
@@ -171,11 +171,11 @@ public class BuilderController {
         double y = mouseEvent.getY();
         Figure figure = getFigureAt(x, y);
 
-        if(figure == null){
+        if (figure == null) {
             return;
         }
 
-        if(figure instanceof Node nodo){
+        if (figure instanceof Node nodo) {
             openNodeMenu(nodo);
         }
     }
@@ -192,7 +192,7 @@ public class BuilderController {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("menuNodo.fxml"));
             Stage stage = new Stage();
-            NodeController nodoControlador = new NodeController(nodo,stage,this);
+            NodeController nodoControlador = new NodeController(nodo, stage, this);
             fxmlLoader.setController(nodoControlador);
             Scene scene = new Scene(fxmlLoader.load());
             nodeMenusOpen.add(nodoControlador);
@@ -209,7 +209,7 @@ public class BuilderController {
     }
 
     @FXML
-    protected void setDrawNodeStatus(){
+    protected void setDrawNodeStatus() {
         removeHandlers();
         setDefaultStyle();
         setActiveStyle(drawNodeButton);
@@ -223,6 +223,7 @@ public class BuilderController {
 
     /**
      * Crea un nodo en el lugar en donde se hizo click
+     *
      * @param mouseEvent La accion del mouse
      */
     private void drawNode(MouseEvent mouseEvent) {
@@ -238,7 +239,7 @@ public class BuilderController {
     }
 
     @FXML
-    protected void setDrawEdgeStatus(){
+    protected void setDrawEdgeStatus() {
         removeHandlers();
         setDefaultStyle();
         setActiveStyle(drawEdgeButton);
@@ -247,11 +248,11 @@ public class BuilderController {
         canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.CROSSHAIR));
         canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
         canvas.setOnMouseDragged(this::drawEdge);
-        canvas.setOnMouseReleased(this::endDrawEdge);   
+        canvas.setOnMouseReleased(this::endDrawEdge);
     }
 
     private void drawEdge(MouseEvent mouseEvent) {
-        if(initialX == null && initialY == null && selectedNode == null){
+        if (initialX == null && initialY == null && selectedNode == null) {
             initialX = mouseEvent.getX();
             initialY = mouseEvent.getY();
 
@@ -290,8 +291,8 @@ public class BuilderController {
         // 2. si la fig recuperada es un nodo, checamos si es el nodo de inicio o final de la arista, si lo son
         //     entonces añadimos la arista a su lista de aristas propia
         Edge arista = new Edge(selectedNode, nodo2);
-        for(Figure figure : figures){
-            if(figure instanceof Edge aristaTemp && aristaTemp.doesExist(selectedNode, nodo2)){
+        for (Figure figure : figures) {
+            if (figure instanceof Edge aristaTemp && aristaTemp.doesExist(selectedNode, nodo2)) {
                 initialX = null;
                 initialY = null;
                 selectedNode = null;
@@ -300,7 +301,7 @@ public class BuilderController {
                 return;
             }
 
-            if(figure == selectedNode || figure == nodo2){
+            if (figure == selectedNode || figure == nodo2) {
                 ((Node) figure).addToEdgeList(arista);
             }
         }
@@ -322,7 +323,7 @@ public class BuilderController {
         setDrawEdgeStatus();
     }
 
-    private void removeHandlers(){
+    private void removeHandlers() {
         canvas.setOnMouseClicked(null);
         canvas.setOnMouseDragged(null);
         canvas.setOnMouseReleased(null);
@@ -352,7 +353,7 @@ public class BuilderController {
         FilesManager.saveFile(this);
     }
 
-    //Funcion que guarda en el CSV y muestra el Chooser
+    // Funcion que guarda en el CSV y muestra el Chooser
     @FXML
     private void saveAs() {
         FilesManager.saveAs(this);
@@ -366,6 +367,34 @@ public class BuilderController {
         FilesManager.CanvasToPng(this);
     }
 
+    public void exitApp() {
+
+    }
+
+    /************************************
+     ************ SHORTCUTS *************
+     ***********************************/
+
+    public void shortcuts() {
+        scene.setOnKeyPressed( keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.N && keyEvent.isControlDown()) {
+                newFile();
+            }
+            if (keyEvent.getCode() == KeyCode.O && keyEvent.isControlDown()) {
+                openFile();
+            }
+            if (keyEvent.getCode() == KeyCode.S && keyEvent.isControlDown()) {
+                saveFile();
+            }
+            if (keyEvent.getCode() == KeyCode.S && keyEvent.isControlDown() && keyEvent.isShiftDown()) {
+                saveAs();
+            }
+            if (keyEvent.getCode() == KeyCode.P && keyEvent.isControlDown()) {
+                CanvasToPng();
+            }
+        });
+    }
+
     /************************************
      **** FUNCIONES PARA LAS FIGURAS ****
      ************************************/
@@ -373,7 +402,7 @@ public class BuilderController {
      * Redibuja todas las figuras en el canvas para actualizar sus posiciones
      * y actualiza el label inferior
      */
-    public void drawShapes(){
+    public void drawShapes() {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         int edgeCount = 0;
@@ -395,9 +424,9 @@ public class BuilderController {
      * @param y Coordenada y del click
      * @return Una figura
      */
-    private Figure getFigureAt(double x, double y){
+    private Figure getFigureAt(double x, double y) {
         for (Figure figure : figures) {
-            if(figure.contains(x, y)) {
+            if (figure.contains(x, y)) {
                 return figure;
             }
         }
@@ -409,12 +438,12 @@ public class BuilderController {
      ************ ESTILOS ***************
      ************************************/
 
-    private void setActiveStyle(Button button){
+    private void setActiveStyle(Button button) {
         button.setStyle("-fx-background-color: #7298d6;");
     }
 
-    private void setDefaultStyle(){
-        for(Button button: buttons){
+    private void setDefaultStyle() {
+        for (Button button : buttons) {
             button.setStyle("");
         }
     }
