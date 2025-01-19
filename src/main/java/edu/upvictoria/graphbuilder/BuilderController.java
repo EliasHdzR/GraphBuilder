@@ -18,6 +18,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ToolBar;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.robot.Robot;
 
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
@@ -36,6 +37,8 @@ public class BuilderController {
     private Double initialY = null;
     private Node selectedNode = null;
     private File archivoGrafo = null;
+    private Node clipboard = null;
+    private Figure selectFigure = null;
     private final List<Node> nodeList = new ArrayList<>();
     private int[][] adjacencyMatrix;
 
@@ -84,6 +87,7 @@ public class BuilderController {
         canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.OPEN_HAND));
         canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
 
+        canvas.setOnMouseClicked(this::clickFigure);
         canvas.setOnMouseDragged(this::moveShape);
         canvas.setOnMouseReleased(this::endMoveShape);
     }
@@ -93,6 +97,8 @@ public class BuilderController {
         double x = mouseEvent.getX();
         double y = mouseEvent.getY();
         Figure figura = getFigureAt(x, y);
+
+        selectFigure = figura;
 
         if (!(figura instanceof Node nodo)) {
             return;
@@ -175,6 +181,7 @@ public class BuilderController {
             return;
         }
 
+        selectFigure = figure;
         if (figure instanceof Node nodo) {
             openNodeMenu(nodo);
         }
@@ -223,7 +230,7 @@ public class BuilderController {
 
     /**
      * Crea un nodo en el lugar en donde se hizo click
-     *
+     * 
      * @param mouseEvent La accion del mouse
      */
     private void drawNode(MouseEvent mouseEvent) {
@@ -231,8 +238,9 @@ public class BuilderController {
         double y = mouseEvent.getY();
 
         CircleCenter circleCenter = new CircleCenter(x, y);
-        Node node = new Node(circleCenter);
+        Node node = new Node(circleCenter, nodeList.size()+1);
         figures.add(node);
+        selectFigure = node;
         nodeList.add(node);
         FilesManager.initializeMatrix(this);
         drawShapes();
@@ -272,11 +280,13 @@ public class BuilderController {
     }
 
     private void endDrawEdge(MouseEvent mouseEvent) {
-        //recuperamos la figura en la que se dejó de mantener presionado el clic izquirdo
+        // recuperamos la figura en la que se dejó de mantener presionado el clic
+        // izquirdo
         Figure fig2 = getFigureAt(mouseEvent.getX(), mouseEvent.getY());
 
-        // si esa figura no es un nodo o es el que ya elegimos entonces deja de dibujar el borrador de arista
-        if(!(fig2 instanceof Node nodo2) || nodo2 == selectedNode || selectedNode == null){
+        // si esa figura no es un nodo o es el que ya elegimos entonces deja de dibujar
+        // el borrador de arista
+        if (!(fig2 instanceof Node nodo2) || nodo2 == selectedNode || selectedNode == null) {
             initialX = null;
             initialY = null;
             selectedNode = null;
@@ -285,11 +295,13 @@ public class BuilderController {
             return;
         }
 
-        //creamos la arista y por cada figura en la lista:
-        // 1. si la fig recuperada de la lista es una arista, tenemos que checar si entre los dos nodos elegidos
-        //     ya existe una arista que los una, si sí, cancelamos el dibujado completamente
-        // 2. si la fig recuperada es un nodo, checamos si es el nodo de inicio o final de la arista, si lo son
-        //     entonces añadimos la arista a su lista de aristas propia
+        // creamos la arista y por cada figura en la lista:
+        // 1. si la fig recuperada de la lista es una arista, tenemos que checar si
+        // entre los dos nodos elegidos
+        // ya existe una arista que los una, si sí, cancelamos el dibujado completamente
+        // 2. si la fig recuperada es un nodo, checamos si es el nodo de inicio o final
+        // de la arista, si lo son
+        // entonces añadimos la arista a su lista de aristas propia
         Edge arista = new Edge(selectedNode, nodo2);
         for (Figure figure : figures) {
             if (figure instanceof Edge aristaTemp && aristaTemp.doesExist(selectedNode, nodo2)) {
@@ -308,6 +320,7 @@ public class BuilderController {
 
         // añadimos la arista a la lista y la dibujamos, posteriormente reiniciamos el estado de dibujo
         figures.add(arista);
+        selectFigure = arista;
         drawShapes();
 
         int fromIndex = nodeList.indexOf(selectedNode);
@@ -462,6 +475,68 @@ public class BuilderController {
     }
 
     /************************************
+     ************ EDITAR ***************
+     ************************************/
+
+    private void clickFigure(MouseEvent mouseEvent){
+        /*
+         * Esto existe para cuando se clikea una figura pero no se mueve
+         */
+        double x = mouseEvent.getX();
+        double y = mouseEvent.getY();
+
+        selectFigure = getFigureAt(x, y);
+
+    }
+
+    private void suprFigure() {
+        if (selectFigure != null) {
+            if (selectFigure instanceof Node nodo) {
+                List<Edge> nodoEdgeList = nodo.getEdgeList();
+                for (Edge edge : nodoEdgeList) {
+                    figures.remove(edge);
+                }
+            }
+            figures.remove(selectFigure);
+            selectFigure = null;
+            drawShapes();
+        }
+    }
+
+    @FXML
+    private void copy(){
+        if(selectFigure instanceof Node node){
+            /*
+             * Cuando acabas de correr el programa aveces no copia nada
+             * y no se porque pero x somos chavos mejor vamos a chelear
+             * con toda la bandita caguamera.
+             */
+            clipboard = node;
+        }
+    }
+
+    @FXML
+    private void paste(){
+        if(clipboard != null){
+            Robot robot = new Robot();
+            /*
+             * No se por que se le restan esas cantidades, solo se que
+             * por alguna razon siempre le suma eso a la posicion del
+             * mouse.
+             */
+            double x = robot.getMousePosition().getX() - 321;
+            double y = robot.getMousePosition().getY() - 278;
+            CircleCenter circleCenter = new CircleCenter(x, y);
+            Node node = new Node(clipboard.getName() + " Copy", circleCenter);
+            figures.add(node);
+            nodeList.add(node);
+            selectFigure = node;
+            FilesManager.initializeMatrix(this);
+            drawShapes();
+        }
+    }
+
+    /************************************
      ****      GETTERS Y SETTERS     ****
      ************************************/
 
@@ -512,4 +587,6 @@ public class BuilderController {
     public Node getSelectedNode() {
         return selectedNode;
     }
+
+
 }
