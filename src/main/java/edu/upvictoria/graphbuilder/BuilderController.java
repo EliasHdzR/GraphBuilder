@@ -26,6 +26,8 @@ import javafx.geometry.Rectangle2D;
 import javafx.embed.swing.SwingFXUtils;
 
 import javax.imageio.ImageIO;
+import com.sun.speech.freetts.Voice;
+import com.sun.speech.freetts.VoiceManager;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -43,6 +45,7 @@ public class BuilderController {
     private File archivoGrafo = null;
     private final List<Node> nodeList = new ArrayList<>();
     private int[][] adjacencyMatrix;
+    private boolean isMovingaShape = false;
 
     // elementos de la gui
     @FXML private Canvas canvas;
@@ -77,6 +80,14 @@ public class BuilderController {
 
     @FXML
     protected void setMovingShapesStatus(){
+        System.out.println(isMovingaShape);
+
+        if (isMovingaShape) {
+            return;
+        }
+
+        isMovingaShape = true;
+
         removeHandlers();
         setDefaultStyle();
         setActiveStyle(moveShapesButton);
@@ -87,6 +98,8 @@ public class BuilderController {
 
         canvas.setOnMouseDragged(this::moveShape);
         canvas.setOnMouseReleased(this::endMoveShape);
+        System.out.println("Moving shapes");
+        textToSpeech("Moving Shape Activated");
     }
 
     private void moveShape(MouseEvent mouseEvent) {
@@ -98,6 +111,9 @@ public class BuilderController {
         if(!(figura instanceof Node nodo)){
             return;
         }
+        System.out.println("happened");
+//        Node node = (Node) figura;
+//        textToSpeech("Moving Node " + node.getName());
 
         nodo.move(x, y);
         drawShapes();
@@ -110,6 +126,7 @@ public class BuilderController {
 
     @FXML
     private void setDeleteFigureStatus(){
+        isMovingaShape = false;
         removeHandlers();
         setDefaultStyle();
         setActiveStyle(deleteShapesButton);
@@ -189,6 +206,8 @@ public class BuilderController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        textToSpeech("Node Menu");
     }
 
     @FXML
@@ -613,6 +632,31 @@ public class BuilderController {
 
         return null;
     }
+
+    /************************************
+     ************ TTS ***************
+     ************************************/
+
+    private void textToSpeech(String text) {
+
+        System.setProperty("freetts.voices",
+                "com.sun.speech.freetts.en.us.cmu_us_kal.KevinVoiceDirectory");
+
+        VoiceManager voiceManager = VoiceManager.getInstance();
+        /*
+        ArrayList<String> voices = new ArrayList<>();
+        for(Voice voice : voiceManager.getVoices()){
+            voices.add(voice.getName());
+            System.out.println(voice.getName());
+        }
+        */
+        Voice voice = voiceManager.getVoice("kevin16");
+        voice.allocate();
+        voice.speak(text);
+        voice.deallocate();
+    }
+
+
 
     /************************************
      ************ ESTILOS ***************

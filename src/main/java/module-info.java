@@ -4,6 +4,7 @@ module edu.upvictoria.graphbuilder {
     requires javafx.graphics;
     requires javafx.base;
     requires javafx.swing;
+    requires freetts;
 
     opens edu.upvictoria.graphbuilder to javafx.fxml;
     exports edu.upvictoria.graphbuilder;
