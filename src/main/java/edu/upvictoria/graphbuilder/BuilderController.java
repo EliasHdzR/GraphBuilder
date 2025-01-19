@@ -6,6 +6,9 @@ import edu.upvictoria.graphbuilder.Figuras.Figure;
 import edu.upvictoria.graphbuilder.Figuras.Node;
 
 import javafx.animation.FadeTransition;
+import javafx.beans.binding.Bindings;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 
@@ -15,6 +18,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ToolBar;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
@@ -31,7 +35,7 @@ import java.util.List;
 public class BuilderController {
     // variables del controlador
     public Scene scene;
-    private final List<Figure> figures = new ArrayList<>();
+    private final ObservableList<Figure> figures = FXCollections.observableArrayList();
     private final List<NodeController> nodeMenusOpen = new ArrayList<>();
     private Double initialX = null;
     private Double initialY = null;
@@ -57,6 +61,7 @@ public class BuilderController {
     @FXML private Button deleteShapesButton;
     @FXML private Button drawNodeButton;
     @FXML private Button drawEdgeButton;
+    @FXML private MenuItem canvasToPngBtn;
     private final ArrayList<Button> buttons = new ArrayList<>();
 
     @FXML
@@ -68,6 +73,9 @@ public class BuilderController {
         buttons.add(deleteShapesButton);
         buttons.add(drawNodeButton);
         buttons.add(drawEdgeButton);
+
+        //desabilitar botones de la barra
+        canvasToPngBtn.disableProperty().bind(Bindings.size(figures).isEqualTo(0));
 
         toolBar.setCursor(Cursor.DEFAULT);
         setMovingShapesStatus();

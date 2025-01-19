@@ -19,7 +19,7 @@
             <MenuItem mnemonicParsing="false" onAction="#saveAs"
                       text="Guardar como...               Ctrl+Shift+S"/>
             <SeparatorMenuItem mnemonicParsing="false"/>
-            <MenuItem mnemonicParsing="false" onAction="#CanvasToPng"
+            <MenuItem fx:id="canvasToPngBtn" mnemonicParsing="false" onAction="#CanvasToPng"
                       text="Exportar a PNG...                        Ctrl+P"/>
             <SeparatorMenuItem mnemonicParsing="false"/>
             <MenuItem mnemonicParsing="false" text="Salir"/>
