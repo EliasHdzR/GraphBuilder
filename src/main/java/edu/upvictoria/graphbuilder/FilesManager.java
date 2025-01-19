@@ -43,12 +43,6 @@ public class FilesManager {
 
         Label fileTitleLabel = controller.getFileTitleLabel();
         fileTitleLabel.setText("Nuevo Archivo");
-
-        List<NodeController> nodeMenusOpen = controller.getNodeMenusOpen();
-        for(NodeController nodeMenu : nodeMenusOpen){
-            nodeMenu.cerrarVentana();
-        }
-        nodeMenusOpen.clear();
     }
 
     public static void initializeMatrix(BuilderController controller) {
@@ -209,11 +203,13 @@ public class FilesManager {
     }
 
     public static void saveAs(BuilderController controller) {
+        Stage stage = (Stage) controller.getCanvas().getScene().getWindow();
+
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Guardar Grafo como CSV");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivos CSV", "*.csv"));
 
-        controller.setArchivoGrafo(fileChooser.showSaveDialog(null));
+        controller.setArchivoGrafo(fileChooser.showSaveDialog(stage));
         File archivoGrafo = controller.getArchivoGrafo();
 
         if (archivoGrafo != null) {
@@ -321,6 +317,7 @@ public class FilesManager {
             }
             try {
                 ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
+                controller.showMessage("   Guardado en " + file.getName());
             } catch (IOException e) {
                 e.printStackTrace();
             }

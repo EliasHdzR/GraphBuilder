@@ -2,7 +2,9 @@ package edu.upvictoria.graphbuilder;
 
 import edu.upvictoria.graphbuilder.Figuras.Node;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 
 public class NodeController {
@@ -25,9 +27,15 @@ public class NodeController {
         nombreNodo.setText(nodo.getName());
     }
 
-    public void requestFocus() {
-        stage.toFront();
-        stage.requestFocus();
+    public void configureShortcuts() {
+        stage.getScene().setOnKeyPressed(keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.ENTER) {
+                guardarNombre();
+            }
+            if (keyEvent.getCode() == KeyCode.ESCAPE) {
+                cerrarVentana();
+            }
+        });
     }
 
     public void cerrarVentana() {
@@ -38,7 +46,7 @@ public class NodeController {
     private void guardarNombre() {
         nodo.setName(nombreNodo.getText());
         builderController.drawShapes();
-        stage.setTitle(nombreNodo.getText());
+        stage.close();
     }
 
     /*****************************************

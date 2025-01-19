@@ -25,7 +25,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.robot.Robot;
 
 import javafx.scene.layout.Pane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
 import java.io.*;
@@ -36,7 +38,6 @@ public class BuilderController {
     // variables del controlador
     public Scene scene;
     private final ObservableList<Figure> figures = FXCollections.observableArrayList();
-    private final List<NodeController> nodeMenusOpen = new ArrayList<>();
     private Double initialX = null;
     private Double initialY = null;
     private Node selectedNode = null;
@@ -196,28 +197,31 @@ public class BuilderController {
     }
 
     private void openNodeMenu(Node nodo) {
-        // checamos si ya esta abierto, si lo está entonces traemos la ventana al plano principal
-        for (NodeController controlador : nodeMenusOpen) {
-            if (controlador.getNodo() == nodo) {
-                controlador.requestFocus();
-                return;
-            }
-        }
-        // si no pues lo abrimos en una ventana nueva y lo agregamos a los menus abiertos
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("menuNodo.fxml"));
-            Stage stage = new Stage();
-            NodeController nodoControlador = new NodeController(nodo, stage, this);
+            Stage subStage = new Stage();
+            NodeController nodoControlador = new NodeController(nodo, subStage, this);
             fxmlLoader.setController(nodoControlador);
             Scene scene = new Scene(fxmlLoader.load());
-            nodeMenusOpen.add(nodoControlador);
-            stage.setOnCloseRequest(event -> nodeMenusOpen.remove(nodoControlador));
 
-            stage.setTitle(nodo.getName());
-            stage.setScene(scene);
-            stage.setMinWidth(346);
-            stage.setMinHeight(126);
-            stage.show();
+            // Establecer la escena al Stage
+            subStage.setTitle(nodo.getName());
+            subStage.setScene(scene);
+
+            // Configurar Stage y ventana modal
+            subStage.initOwner(canvas.getScene().getWindow());
+            subStage.initModality(Modality.WINDOW_MODAL);
+
+            subStage.setMinWidth(319);
+            subStage.setMinHeight(180);
+            subStage.setMaxWidth(319);
+            subStage.setMaxHeight(180);
+
+            subStage.initStyle(StageStyle.UNDECORATED);
+            nodoControlador.configureShortcuts();
+
+            // Mostrar la ventana
+            subStage.show();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -578,10 +582,6 @@ public class BuilderController {
 
     public Label getFileTitleLabel(){
         return fileTitleLabel;
-    }
-
-    public List<NodeController> getNodeMenusOpen(){
-        return nodeMenusOpen;
     }
 
     public int[][] getAdjacencyMatrix(){
