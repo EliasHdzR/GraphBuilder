@@ -43,7 +43,7 @@ public class FilesManager {
         edgeCounterLabel.setText("0");
 
         Label fileTitleLabel = controller.getFileTitleLabel();
-        fileTitleLabel.setText("Nuevo Archivo");
+        fileTitleLabel.setText("New File");
     }
 
     public static void initializeMatrix(BuilderController controller) {
@@ -72,8 +72,8 @@ public class FilesManager {
 
     public static void openFile(BuilderController controller) {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Abrir Archivo");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivos CSV", "*.csv"));
+        fileChooser.setTitle("Open File");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archives CSV", "*.csv"));
 
         File file = fileChooser.showOpenDialog(null);
         if(file == null){
@@ -91,7 +91,7 @@ public class FilesManager {
         controller.createBackups();
 
         controller.getFileTitleLabel().setText(controller.getArchivoGrafo().getName());
-        controller.showMessage("   Abierto " + controller.getArchivoGrafo().getName());
+        controller.showMessage("   Opened " + controller.getArchivoGrafo().getName());
     }
 
     private static void readCSVcontent(BuilderController controller) {
@@ -201,12 +201,12 @@ public class FilesManager {
             System.out.println(archivoGrafo.getAbsolutePath());
 
             controller.getFileTitleLabel().setText(archivoGrafo.getName());
-            controller.showMessage("   Guardado en " + archivoGrafo.getName());
+            controller.showMessage("   Saved as " + archivoGrafo.getName());
             controller.deleteBackups();
             controller.createBackups();
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("Error al guardar el archivo CSV.");
+            System.out.println("Error while saving CSV.");
         }
     }
 
@@ -214,8 +214,8 @@ public class FilesManager {
         Stage stage = (Stage) controller.getCanvas().getScene().getWindow();
 
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Guardar Grafo como CSV");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivos CSV", "*.csv"));
+        fileChooser.setTitle("Save as CSV");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archives CSV", "*.csv"));
 
         File tempFile = fileChooser.showSaveDialog(stage);
         if(tempFile == null){
@@ -232,12 +232,12 @@ public class FilesManager {
             saveMatrixToCSV(archivoGrafo.getAbsolutePath(), controller);
 
             controller.getFileTitleLabel().setText(archivoGrafo.getAbsolutePath());
-            controller.showMessage("   Guardado en " + archivoGrafo.getName());
+            controller.showMessage("   Saved as " + archivoGrafo.getName());
             controller.deleteBackups();
             controller.createBackups();
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("Error al guardar el archivo CSV.");
+            System.out.println("Error while saving CSV.");
         }
     }
 
@@ -322,8 +322,8 @@ public class FilesManager {
         canvas.snapshot(params, image);
 
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Guardar imagen como");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Imagen PNG", "*.png"));
+        fileChooser.setTitle("Save as");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image PNG", "*.png"));
         File file = fileChooser.showSaveDialog(stage);
         if (file != null) {
             if (!file.getName().toLowerCase().endsWith(".png")) {
@@ -331,7 +331,7 @@ public class FilesManager {
             }
             try {
                 ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
-                controller.showMessage("   Guardado en " + file.getName());
+                controller.showMessage("   Saved as" + file.getName());
             } catch (IOException e) {
                 e.printStackTrace();
             }

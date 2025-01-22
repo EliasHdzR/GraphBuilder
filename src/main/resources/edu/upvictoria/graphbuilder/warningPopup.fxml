@@ -9,9 +9,10 @@
    <ImageView fitHeight="58.0" fitWidth="61.0" layoutX="22.0" layoutY="28.0" pickOnBounds="true" preserveRatio="true">
       <Image url="@images/advertencia.png"/>
    </ImageView>
-   <Button layoutX="22.0" layoutY="102.0" mnemonicParsing="false" onAction="#exit" text="Cerrar sin guardar"/>
-   <Button fx:id="btnCancelar" layoutX="166.0" layoutY="102.0" mnemonicParsing="false" onAction="#closePopup" text="Cancelar"/>
+   <Button layoutX="22.0" layoutY="102.0" mnemonicParsing="false" onAction="#exit" text="Close without saving"/>
+   <Button fx:id="btnCancelar" layoutX="166.0" layoutY="102.0" mnemonicParsing="false" onAction="#closePopup" text="Cancel"/>
    <Button fx:id="btnGuardar" layoutX="249.0" layoutY="102.0" mnemonicParsing="false" onAction="#saveAndExit"
-           text="Guardar"/>
-   <Label layoutX="96.0" layoutY="47.0" text="¿Guardar cambios antes de cerrar?"/>
+           text="Save"/>
+   <Label layoutX="96.0" layoutY="47.0" text="Save changes before closing?"/>
 </Pane>
+

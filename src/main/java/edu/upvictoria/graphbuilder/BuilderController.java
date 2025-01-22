@@ -48,7 +48,13 @@ public class BuilderController {
     private Figure selectFigure = null;
     private final List<Node> nodeList = new ArrayList<>();
     private int[][] adjacencyMatrix;
-    private boolean isMovingaShape = false;
+
+    private boolean isTalkBackOn = false;
+    private String currentStatus = "";
+    private boolean isMovingaNode = false;
+    private VoiceManager voiceManager = VoiceManager.getInstance();
+    private Voice voice = null;
+
 
     // info guardada de un archivo abierto (para poder comparar si se le han realizado cambios)
     private List<Node> nodeListBackup;
@@ -74,7 +80,7 @@ public class BuilderController {
 
     @FXML
     public void initialize() {
-        fileTitleLabel.setText("Nuevo Archivo");
+        fileTitleLabel.setText("New file");
 
         buttons.add(moveShapesButton);
         buttons.add(openMenusButton);
@@ -95,14 +101,6 @@ public class BuilderController {
 
     @FXML
     protected void setMovingShapesStatus(){
-        System.out.println(isMovingaShape);
-
-        if (isMovingaShape) {
-            return;
-        }
-
-        isMovingaShape = true;
-
         removeHandlers();
         setDefaultStyle();
         setActiveStyle(moveShapesButton);
@@ -114,8 +112,8 @@ public class BuilderController {
         canvas.setOnMouseClicked(this::clickFigure);
         canvas.setOnMouseDragged(this::moveShape);
         canvas.setOnMouseReleased(this::endMoveShape);
-        System.out.println("Moving shapes");
-        textToSpeech("Moving Shape Activated");
+
+        updateStatus("Moving Shapes");
     }
 
     private void moveShape(MouseEvent mouseEvent) {
@@ -129,22 +127,23 @@ public class BuilderController {
         if (!(figura instanceof Node nodo)) {
             return;
         }
-        System.out.println("happened");
-//        Node node = (Node) figura;
-//        textToSpeech("Moving Node " + node.getName());
 
+        if (!isMovingaNode){
+            textToSpeech("Moving Node" + nodo.getName());
+        }
+        isMovingaNode = true;
         nodo.move(x, y);
         drawShapes();
     }
 
     private void endMoveShape(MouseEvent mouseEvent) {
         canvas.setCursor(Cursor.OPEN_HAND);
+        isMovingaNode = false;
         setMovingShapesStatus();
     }
 
     @FXML
     private void setDeleteFigureStatus (){
-        isMovingaShape = false;
         removeHandlers();
         setDefaultStyle();
         setActiveStyle(deleteShapesButton);
@@ -153,6 +152,7 @@ public class BuilderController {
         canvas.setOnMouseEntered(me -> canvas.setCursor(Cursor.HAND));
         canvas.setOnMouseExited(me -> canvas.setCursor(Cursor.DEFAULT));
         canvas.setOnMouseClicked(this::eraseFigure);
+        updateStatus("Deleting Figures");
     }
 
     private void eraseFigure(MouseEvent mouseEvent) {
@@ -164,11 +164,13 @@ public class BuilderController {
         if(figure instanceof Node nodo){
             int nodeIndex = nodeList.indexOf(nodo);
             nodeList.remove(nodo);
+            textToSpeech("Deleted node " + nodo.getName());
 
             List<Edge> nodoEdgeList = nodo.getEdgeList();
             for (Edge edge : nodoEdgeList) {
                 figures.remove(edge);
             }
+            textToSpeech("Deleted " + nodoEdgeList.size() + "edges");
 
             int[][] newMatrix = new int[nodeList.size()][nodeList.size()];
             int[][] oldMatrix = adjacencyMatrix;
@@ -194,6 +196,7 @@ public class BuilderController {
             int toIndex = nodeList.indexOf(nodo2);
             adjacencyMatrix[fromIndex][toIndex] = 0;
             adjacencyMatrix[toIndex][fromIndex] = 0;
+            textToSpeech("Deleted edge between " + nodo1.getName() + "and" + nodo2.getName());
         }
 
         figures.remove(figure);
@@ -210,6 +213,7 @@ public class BuilderController {
         canvas.setOnMouseEntered(me -> canvas.setCursor(Cursor.HAND));
         canvas.setOnMouseExited(me -> canvas.setCursor(Cursor.DEFAULT));
         canvas.setOnMouseClicked(this::openFigureMenu);
+        updateStatus("Open Figure Menu");
     }
 
     private void openFigureMenu(MouseEvent mouseEvent) {
@@ -257,7 +261,7 @@ public class BuilderController {
             e.printStackTrace();
         }
 
-        textToSpeech("Node Menu");
+        textToSpeech("Node " + nodo.getName() + " Menu Opened");
     }
 
     @FXML
@@ -271,6 +275,7 @@ public class BuilderController {
         canvas.setOnMouseExited(me -> canvas.setCursor(Cursor.DEFAULT));
 
         canvas.setOnMouseClicked(this::drawNode);
+        updateStatus("Drawing Nodes");
     }
 
     /**
@@ -288,6 +293,7 @@ public class BuilderController {
         selectFigure = node;
         nodeList.add(node);
         FilesManager.initializeMatrix(this);
+        textToSpeech("Drawing Node");
         drawShapes();
     }
 
@@ -302,6 +308,7 @@ public class BuilderController {
         canvas.setOnMouseExited(me -> canvas.setCursor(Cursor.DEFAULT));
         canvas.setOnMouseDragged(this::drawEdge);
         canvas.setOnMouseReleased(this::endDrawEdge);
+        updateStatus("Drawing Edges");
     }
 
     private void drawEdge(MouseEvent mouseEvent) {
@@ -360,11 +367,14 @@ public class BuilderController {
 
             if (figure == selectedNode || figure == nodo2) {
                 ((Node) figure).addToEdgeList(arista);
+
             }
         }
 
         // añadimos la arista a la lista y la dibujamos, posteriormente reiniciamos el estado de dibujo
         figures.add(arista);
+        //System.out.println("Edge between " + selectedNode.getName() + " and " + nodo2.getName());
+        textToSpeech("Edge between: " + selectedNode.getName() + " and " + nodo2.getName() + "eliminated");
         selectFigure = arista;
         drawShapes();
 
@@ -559,6 +569,9 @@ public class BuilderController {
             if (keyEvent.getCode() == KeyCode.Q && keyEvent.isControlDown()) {
                 exitApp();
             }
+            if (keyEvent.getCode() == KeyCode.F2) {
+                switchTalkBack();
+            }
         });
     }
 
@@ -610,26 +623,48 @@ public class BuilderController {
      ************ TTS ***************
      ************************************/
 
-    private void textToSpeech(String text) {
-
-        System.setProperty("freetts.voices",
-                "com.sun.speech.freetts.en.us.cmu_us_kal.KevinVoiceDirectory");
-
-        VoiceManager voiceManager = VoiceManager.getInstance();
-        /*
-        ArrayList<String> voices = new ArrayList<>();
-        for(Voice voice : voiceManager.getVoices()){
-            voices.add(voice.getName());
-            System.out.println(voice.getName());
+    private void updateStatus(String newStatus) {
+        if (!newStatus.equals(currentStatus)) {
+            currentStatus = newStatus;
+            textToSpeech("Status " + newStatus + "activated");
         }
-        */
-        Voice voice = voiceManager.getVoice("kevin16");
-        voice.allocate();
-        voice.speak(text);
-        voice.deallocate();
     }
 
+    private void switchTalkBack() {
+        if (!isTalkBackOn){
+            isTalkBackOn = true;
+            System.setProperty("freetts.voices",
+                    "com.sun.speech.freetts.en.us.cmu_us_kal.KevinVoiceDirectory");
+            voice = voiceManager.getVoice("kevin16");
+            voice.allocate();
 
+            textToSpeech("TalkBack Activated");
+        } else {
+            textToSpeechWaits("TalkBack Deactivated");
+            voice.deallocate();
+            isTalkBackOn = false;
+        }
+    }
+
+    private void textToSpeechWaits(String string) {
+        voice.speak(string);
+    }
+
+    private void textToSpeech(String text) {
+        if (isTalkBackOn){
+            new Thread(() -> {
+                try {
+                    if (voice != null) {
+                        voice.speak(text);
+                    } else {
+                        System.err.println("Voice 'kevin16' not found.");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }).start();
+        }
+    }
 
     /************************************
      ************ ESTILOS ***************

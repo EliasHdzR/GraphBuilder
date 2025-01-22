@@ -8,48 +8,48 @@
 <VBox prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="edu.upvictoria.graphbuilder.BuilderController">
     <MenuBar>
-        <Menu mnemonicParsing="false" text="Archivo">
+        <Menu mnemonicParsing="false" text="File">
             <MenuItem mnemonicParsing="false" onAction="#newFile"
-                      text="Nuevo                                          Ctrl+N"/>
+                      text="New                                          Ctrl+N"/>
             <MenuItem mnemonicParsing="false" onAction="#openFile"
-                      text="Abrir...                                          Ctrl+O"/>
+                      text="Open...                                      Ctrl+O"/>
             <SeparatorMenuItem mnemonicParsing="false"/>
             <MenuItem mnemonicParsing="false" onAction="#saveFile"
-                      text="Guardar                                       Ctrl+S"/>
+                      text="Save                                         Ctrl+S"/>
             <MenuItem mnemonicParsing="false" onAction="#saveAs"
-                      text="Guardar como...               Ctrl+Shift+S"/>
+                      text="Save As...                     Ctrl+Shift+S"/>
             <SeparatorMenuItem mnemonicParsing="false"/>
             <MenuItem fx:id="canvasToPngBtn" mnemonicParsing="false" onAction="#CanvasToPng"
-                      text="Exportar a PNG...                        Ctrl+P"/>
+                      text="Export to PNG...                   Ctrl+P"/>
             <SeparatorMenuItem mnemonicParsing="false"/>
             <MenuItem mnemonicParsing="false" onAction="#exitApp"
-                      text="Salir                                               Ctrl+Q"/>
+                      text="Exit                                          Ctrl+Q"/>
         </Menu>
-        <Menu mnemonicParsing="false" text="Editar">
+        <Menu mnemonicParsing="false" text="Edit">
             <MenuItem mnemonicParsing="false"
-                      text="Deshacer                                             Ctrl+Z"/>
+                      text="Undo                                         Ctrl+Z"/>
             <MenuItem mnemonicParsing="false"
-                      text="Rehacer                                               Ctrl+Y"/>
+                      text="Redo                                          Ctrl+Y"/>
             <SeparatorMenuItem mnemonicParsing="false"/>
             <MenuItem mnemonicParsing="false"
-                      text="Cortar                                                  Ctrl+X"/>
+                      text="Cut                                           Ctrl+X"/>
             <MenuItem mnemonicParsing="false" onAction="#copy"
-                      text="Copiar                                                  Ctrl+C"/>
+                      text="Copy                                         Ctrl+C"/>
             <MenuItem mnemonicParsing="false" onAction="#paste"
-                      text="Pegar                                                   Ctrl+V"/>
+                      text="Paste                                        Ctrl+V"/>
         </Menu>
-        <Menu mnemonicParsing="false" text="Accesibilidad">
-            <MenuItem mnemonicParsing="false" text="Activar control por seguimiento ocular"/>
+        <Menu mnemonicParsing="false" text="Accessibility">
+            <MenuItem mnemonicParsing="false" text="Enable eye-tracking control"/>
         </Menu>
-        <Menu mnemonicParsing="false" text="Ayuda">
-            <MenuItem mnemonicParsing="false" text="Acerca de"/>
-            <MenuItem mnemonicParsing="false" text="Documentacion"/>
+        <Menu mnemonicParsing="false" text="Help">
+            <MenuItem mnemonicParsing="false" text="About"/>
+            <MenuItem mnemonicParsing="false" text="Documentation"/>
         </Menu>
     </MenuBar>
     <ToolBar fx:id="toolBar" prefHeight="41.0" prefWidth="600.0">
         <Button mnemonicParsing="false" onAction="#setMovingShapesStatus" prefHeight="25.0" prefWidth="28.0" fx:id="moveShapesButton">
             <tooltip>
-                <Tooltip text="Mover Figuras"/>
+                <Tooltip text="Move Figures"/>
             </tooltip>
             <graphic>
                 <ImageView>
@@ -60,7 +60,7 @@
         <Separator orientation="VERTICAL" prefHeight="0.0" prefWidth="0.0"/>
         <Button mnemonicParsing="false" onAction="#setOpenFigureMenuStatus" prefHeight="25.0" prefWidth="28.0" fx:id="openMenusButton">
             <tooltip>
-                <Tooltip text="Editar Propiedades"/>
+                <Tooltip text="Edit Properties"/>
             </tooltip>
             <graphic>
                 <ImageView>
@@ -70,7 +70,7 @@
         </Button>
         <Button mnemonicParsing="false" onAction="#setDeleteFigureStatus" prefHeight="25.0" prefWidth="28.0" fx:id="deleteShapesButton">
             <tooltip>
-                <Tooltip text="Eliminar Figuras"/>
+                <Tooltip text="Delete Figures"/>
             </tooltip>
             <graphic>
                 <ImageView>
@@ -81,7 +81,7 @@
         <Separator orientation="VERTICAL" prefHeight="0.0" prefWidth="0.0"/>
         <Button mnemonicParsing="false" onAction="#setDrawNodeStatus" prefHeight="25.0" prefWidth="28.0" fx:id="drawNodeButton">
             <tooltip>
-                <Tooltip text="Nodo"/>
+                <Tooltip text="Node"/>
             </tooltip>
             <graphic>
                 <ImageView>
@@ -91,7 +91,7 @@
         </Button>
         <Button mnemonicParsing="false" onAction="#setDrawEdgeStatus" prefHeight="25.0" prefWidth="28.0" fx:id="drawEdgeButton">
             <tooltip>
-                <Tooltip text="Arista"/>
+                <Tooltip text="Edge"/>
             </tooltip>
             <graphic>
                 <ImageView>
@@ -112,11 +112,11 @@
     <StackPane prefHeight="20.0" prefWidth="600.0">
         <HBox prefHeight="16.0" prefWidth="600.0">
             <Region prefHeight="19.0" prefWidth="16.0"/>
-            <Label text="Nodos:"/>
+            <Label text="Nodes:"/>
             <Region prefHeight="19.0" prefWidth="16.0"/>
             <Label fx:id="nodeCounterLabel" text="0"/>
             <Separator orientation="VERTICAL" prefHeight="19.0" prefWidth="7.0"/>
-            <Label text="Aristas:"/>
+            <Label text="Edges:"/>
             <Region prefHeight="19.0" prefWidth="16.0"/>
             <Label fx:id="edgeCounterLabel" text="0"/>
         </HBox>
