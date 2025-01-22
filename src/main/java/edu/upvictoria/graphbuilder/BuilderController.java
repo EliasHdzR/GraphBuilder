@@ -47,6 +47,10 @@ public class BuilderController {
     private final List<Node> nodeList = new ArrayList<>();
     private int[][] adjacencyMatrix;
 
+    // info guardada de un archivo abierto (para poder comparar si se le han realizado cambios)
+    private List<Node> nodeListBackup;
+    private int[][] adjacencyMatrixBackup;
+
     // elementos de la gui
     @FXML private Canvas canvas;
     @FXML private ToolBar toolBar;
@@ -93,8 +97,8 @@ public class BuilderController {
         setActiveStyle(moveShapesButton);
 
         scene = canvas.getScene();
-        canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.OPEN_HAND));
-        canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
+        canvas.setOnMouseEntered(me -> canvas.setCursor(Cursor.OPEN_HAND));
+        canvas.setOnMouseExited(me -> canvas.setCursor(Cursor.DEFAULT));
 
         canvas.setOnMouseClicked(this::clickFigure);
         canvas.setOnMouseDragged(this::moveShape);
@@ -129,8 +133,8 @@ public class BuilderController {
         setActiveStyle(deleteShapesButton);
 
         scene = canvas.getScene();
-        canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.HAND));
-        canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
+        canvas.setOnMouseEntered(me -> canvas.setCursor(Cursor.HAND));
+        canvas.setOnMouseExited(me -> canvas.setCursor(Cursor.DEFAULT));
         canvas.setOnMouseClicked(this::eraseFigure);
     }
 
@@ -165,6 +169,16 @@ public class BuilderController {
             adjacencyMatrix = newMatrix;
         }
 
+        // si es una arista, hay que recalcular el contenido de la matriz de adyacencia
+        if(figure instanceof Edge arista){
+            Node nodo1 = arista.getNodo1();
+            Node nodo2 = arista.getNodo2();
+            int fromIndex = nodeList.indexOf(nodo1);
+            int toIndex = nodeList.indexOf(nodo2);
+            adjacencyMatrix[fromIndex][toIndex] = 0;
+            adjacencyMatrix[toIndex][fromIndex] = 0;
+        }
+
         figures.remove(figure);
         drawShapes();
         setDeleteFigureStatus();
@@ -176,8 +190,8 @@ public class BuilderController {
         setDefaultStyle();
         setActiveStyle(openMenusButton);
 
-        canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.HAND));
-        canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
+        canvas.setOnMouseEntered(me -> canvas.setCursor(Cursor.HAND));
+        canvas.setOnMouseExited(me -> canvas.setCursor(Cursor.DEFAULT));
         canvas.setOnMouseClicked(this::openFigureMenu);
     }
 
@@ -234,8 +248,8 @@ public class BuilderController {
         setActiveStyle(drawNodeButton);
 
         scene = canvas.getScene();
-        canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.CROSSHAIR));
-        canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
+        canvas.setOnMouseEntered(me -> canvas.setCursor(Cursor.CROSSHAIR));
+        canvas.setOnMouseExited(me -> canvas.setCursor(Cursor.DEFAULT));
 
         canvas.setOnMouseClicked(this::drawNode);
     }
@@ -265,8 +279,8 @@ public class BuilderController {
         setActiveStyle(drawEdgeButton);
 
         scene = canvas.getScene();
-        canvas.setOnMouseEntered(me -> scene.setCursor(Cursor.CROSSHAIR));
-        canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
+        canvas.setOnMouseEntered(me -> canvas.setCursor(Cursor.CROSSHAIR));
+        canvas.setOnMouseExited(me -> canvas.setCursor(Cursor.DEFAULT));
         canvas.setOnMouseDragged(this::drawEdge);
         canvas.setOnMouseReleased(this::endDrawEdge);
     }
@@ -355,6 +369,64 @@ public class BuilderController {
         canvas.setOnMousePressed(null);
     }
 
+    public boolean hasUnsavedChanges(){
+
+        return !compareMatrices() || !compareNodeList();
+    }
+
+    /**
+     * Compara la matriz de adyacencia actual con la de backup
+     * @return true si son iguales, false si no
+     */
+    private boolean compareMatrices(){
+        if (adjacencyMatrix == null || adjacencyMatrixBackup == null) {
+            return false;
+        }
+
+        if (adjacencyMatrix.length != adjacencyMatrixBackup.length) {
+            return false;
+        }
+
+        for (int i = 0; i < adjacencyMatrix.length; i++) {
+            if (adjacencyMatrix[i].length != adjacencyMatrixBackup[i].length) {
+                return false;
+            }
+
+            for (int j = 0; j < adjacencyMatrix[i].length; j++) {
+                if (adjacencyMatrix[i][j] != adjacencyMatrixBackup[i][j]) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Compara la lista de nodos actual con la de backup
+     * @return true si son iguales, false si no
+     */
+    private boolean compareNodeList(){
+        if (nodeListBackup == null) {
+            return false;
+        }
+
+        if (nodeList.size() != nodeListBackup.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < nodeList.size(); i++) {
+            Node node = nodeList.get(i);
+            Node nodeBackup = nodeListBackup.get(i);
+
+            if(!nodeBackup.equals(node)){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     /***********************************
      * **** FUNCIONES ARCHIVO *********
      * *********************************
@@ -364,13 +436,31 @@ public class BuilderController {
      * Vacía el canvas y lo deja como nuevo
      */
     @FXML
-    private void newFile(){
-        FilesManager.newFile(this);
+    public void newFile(){
+        FilesManager.checkUnsavedChanges(this, "new file");
     }
 
     @FXML
     private void openFile(){
-        FilesManager.openFile(this);
+        FilesManager.checkUnsavedChanges(this, "open file");
+    }
+
+    public void createBackups(){
+        nodeListBackup = new ArrayList<>(nodeList.size());
+
+        for (Node node : nodeList) {
+            nodeListBackup.add(new Node(node.getName(), new CircleCenter(node.getmCenter().getX(), node.getmCenter().getY())));
+        }
+
+        adjacencyMatrixBackup = new int[adjacencyMatrix.length][];
+        for (int i = 0; i < adjacencyMatrix.length; i++) {
+            adjacencyMatrixBackup[i] = adjacencyMatrix[i].clone();
+        }
+    }
+
+    public void deleteBackups(){
+        nodeListBackup = null;
+        adjacencyMatrixBackup = null;
     }
 
     @FXML
@@ -380,7 +470,7 @@ public class BuilderController {
 
     // Funcion que guarda en el CSV y muestra el Chooser
     @FXML
-    private void saveAs() {
+    public void saveAs() {
         FilesManager.saveAs(this);
     }
 
@@ -393,7 +483,37 @@ public class BuilderController {
     }
 
     public void exitApp() {
+        FilesManager.checkUnsavedChanges(this, "exit");
+    }
 
+    public void showUnsavedChangesPopup(String process){
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("warningPopup.fxml"));
+            Stage subStage = new Stage();
+            WarningController warningController = new WarningController(subStage, this, process);
+            fxmlLoader.setController(warningController);
+            Scene scene = new Scene(fxmlLoader.load());
+
+            // Establecer la escena al Stage
+            subStage.setScene(scene);
+
+            // Configurar Stage y ventana modal
+            subStage.initOwner(canvas.getScene().getWindow());
+            subStage.initModality(Modality.WINDOW_MODAL);
+
+            subStage.setMinWidth(342);
+            subStage.setMinHeight(139);
+            subStage.setMaxWidth(342);
+            subStage.setMaxHeight(139);
+
+            subStage.initStyle(StageStyle.UNDECORATED);
+            warningController.focusBtnGuardar();
+
+            // Mostrar la ventana
+            subStage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /************************************
@@ -416,6 +536,9 @@ public class BuilderController {
             }
             if (keyEvent.getCode() == KeyCode.P && keyEvent.isControlDown()) {
                 CanvasToPng();
+            }
+            if (keyEvent.getCode() == KeyCode.Q && keyEvent.isControlDown()) {
+                exitApp();
             }
         });
     }
@@ -441,6 +564,10 @@ public class BuilderController {
 
         nodeCounterLabel.setText(String.valueOf(nodeList.size()));
         edgeCounterLabel.setText(String.valueOf(edgeCount));
+
+        if(adjacencyMatrixBackup != null){
+            System.out.println(hasUnsavedChanges());
+        }
     }
 
     /**
@@ -592,9 +719,7 @@ public class BuilderController {
         this.adjacencyMatrix = adjacencyMatrix;
     }
 
-    public Node getSelectedNode() {
-        return selectedNode;
+    public int[][] getAdjacencyMatrixBackup() {
+        return adjacencyMatrixBackup;
     }
-
-
 }

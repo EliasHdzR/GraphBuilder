@@ -22,7 +22,8 @@
             <MenuItem fx:id="canvasToPngBtn" mnemonicParsing="false" onAction="#CanvasToPng"
                       text="Exportar a PNG...                        Ctrl+P"/>
             <SeparatorMenuItem mnemonicParsing="false"/>
-            <MenuItem mnemonicParsing="false" text="Salir"/>
+            <MenuItem mnemonicParsing="false" onAction="#exitApp"
+                      text="Salir                                               Ctrl+Q"/>
         </Menu>
         <Menu mnemonicParsing="false" text="Editar">
             <MenuItem mnemonicParsing="false"
