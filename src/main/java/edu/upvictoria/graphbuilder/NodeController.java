@@ -36,6 +36,7 @@ public class NodeController {
 
     @FXML
     private void guardarNombre() {
+        builderController.createEvent(4, nodo);
         nodo.setName(nombreNodo.getText());
         builderController.drawShapes();
         stage.setTitle(nombreNodo.getText());

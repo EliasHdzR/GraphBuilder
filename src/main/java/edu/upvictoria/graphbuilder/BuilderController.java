@@ -45,6 +45,8 @@ public class BuilderController {
     private File archivoGrafo = null;
     private Node clipboard = null;
     private Figure selectFigure = null;
+    public final List<Event> undoList = new ArrayList<>();
+    private final List<Event> redoList = new ArrayList<>();
     private final List<Node> nodeList = new ArrayList<>();
     private int[][] adjacencyMatrix;
 
@@ -105,6 +107,7 @@ public class BuilderController {
         canvas.setOnMouseExited(me -> scene.setCursor(Cursor.DEFAULT));
 
         canvas.setOnMouseClicked(this::clickFigure);
+        canvas.setOnDragDetected(this::eventDragFigure);
         canvas.setOnMouseDragged(this::moveShape);
         canvas.setOnMouseReleased(this::endMoveShape);
     }
@@ -120,6 +123,8 @@ public class BuilderController {
             }else if(keyEvent.getCode() == KeyCode.X && keyEvent.isControlDown()){
                 copy();
                 suprFigure();
+            }else if(keyEvent.getCode() == KeyCode.Z && keyEvent.isControlDown()){
+                undo();
             }
         });
     }
@@ -129,7 +134,6 @@ public class BuilderController {
         double x = mouseEvent.getX();
         double y = mouseEvent.getY();
         Figure figura = getFigureAt(x, y);
-
         selectFigure = figura;
 
         if (!(figura instanceof Node nodo)) {
@@ -161,14 +165,19 @@ public class BuilderController {
         double y = mouseEvent.getY();
         Figure figure = getFigureAt(x, y);
 
+        int count = 0;
+
         // si es un nodo tmb hay que borrar todas las aristas que van hacia este nodo
         if (figure instanceof Node nodo) {
             List<Edge> nodoEdgeList = nodo.getEdgeList();
             for (Edge edge : nodoEdgeList) {
                 figures.remove(edge);
+                createEvent(2, edge);
+                count++;
             }
         }
-
+        
+        createEvent(x,y, 2, figure, count);
         figures.remove(figure);
         drawShapes();
         setDeleteFigureStatus();
@@ -219,6 +228,7 @@ public class BuilderController {
             nodeMenusOpen.add(nodoControlador);
             stage.setOnCloseRequest(event -> nodeMenusOpen.remove(nodoControlador));
 
+            createEvent(4, nodo);
             stage.setTitle(nodo.getName());
             stage.setScene(scene);
             stage.setMinWidth(346);
@@ -256,8 +266,17 @@ public class BuilderController {
         figures.add(node);
         selectFigure = node;
         nodeList.add(node);
+        createEvent(1, node);
         initializeMatrix();
         drawShapes();
+    }
+
+    private void drawNode(String name, Node recover){
+        Node node = recover;
+        figures.add(node);
+        selectFigure = node; 
+        initializeMatrix();
+        drawShapes();  
     }
 
     @FXML
@@ -336,6 +355,7 @@ public class BuilderController {
         // estado de dibujo
         figures.add(arista);
         selectFigure = arista;
+        createEvent(1, arista);
         drawShapes();
 
         int fromIndex = nodeList.indexOf(selectedNode);
@@ -349,6 +369,12 @@ public class BuilderController {
         initialY = null;
         selectedNode = null;
         setDrawEdgeStatus();
+    }
+
+    private void recoverEdge(Figure edge){
+        figures.add(edge);
+        selectFigure=edge;
+        drawShapes();
     }
 
     private void removeHandlers() {
@@ -689,10 +715,32 @@ public class BuilderController {
         Figure figure = getFigureAt(x, y);
 
         selectFigure = figure;
-        
+    }
+
+    private void eventDragFigure(MouseEvent mouseEvent){
+        double x = mouseEvent.getX();
+        double y = mouseEvent.getY();
+        Figure figure = getFigureAt(x, y);
+        createEvent(x,y,3, figure);
+        selectFigure = figure;
     }
 
     private void suprFigure() {
+        if (selectFigure != null) {
+            if (selectFigure instanceof Node nodo) {
+                List<Edge> nodoEdgeList = nodo.getEdgeList();
+                for (Edge edge : nodoEdgeList) {
+                    figures.remove(edge);
+                }
+            }
+            createEvent(2, selectFigure);
+            figures.remove(selectFigure);
+            selectFigure = null;
+            drawShapes();
+        }
+    }
+
+    private void suprFigure(boolean flag) {
         if (selectFigure != null) {
             if (selectFigure instanceof Node nodo) {
                 List<Edge> nodoEdgeList = nodo.getEdgeList();
@@ -736,6 +784,74 @@ public class BuilderController {
             selectFigure = node;
             initializeMatrix();
             drawShapes();
+        }
+    }
+
+    protected void createEvent(int type, Figure figure){
+        Event event = new Event();
+        event.setType(type);
+        event.setFigure(figure);
+        event.setName(figure);
+        undoList.add(event);
+    }
+
+    private void createEvent(double x, double y, int type, Figure figure){
+        Event event = new Event();
+        event.setType(type);
+        event.setFigure(figure);
+        event.setX(x);
+        event.setY(y);
+        undoList.add(event);
+    }
+
+    private void createEvent(double x, double y, int type, Figure figure, int count){
+        Event event = new Event();
+        event.setType(type);
+        event.setFigure(figure);
+        event.setX(x);
+        event.setY(y);
+        event.setCount(count);
+        undoList.add(event);
+    }
+
+    private void undo(){
+        if(!undoList.isEmpty()){
+            Event event = undoList.getLast();
+            undoList.removeLast();
+            switch (event.getType()) {
+                case 1:
+                    selectFigure = event.getFigure();
+                    suprFigure(true);
+                    if(event.getFigure() instanceof Node){
+                        nodeList.remove(event.getFigure());
+                    }
+                    break;
+                case 2:
+                    if(event.getFigure() instanceof Node node){
+                        drawNode(node.getName(), node);
+                        if(event.getCount() != 0){
+                            for(int i = 0; i<event.getCount(); i++){
+                                Event temp = undoList.getLast();
+                                undoList.removeLast();
+                                recoverEdge(temp.getFigure());
+                            }
+                        }
+                    }else{
+                        recoverEdge(event.getFigure());
+                    }
+                    break;
+                case 3:
+                    if(event.getFigure() instanceof Node node){
+                        node.move(event.getX(), event.getY());
+                    }
+                    drawShapes();
+                    break;
+                case 4:
+                    if(event.getFigure() instanceof Node node){
+                        node.setName(event.getName());
+                    }
+                    drawShapes();
+            }
         }
     }
 }
