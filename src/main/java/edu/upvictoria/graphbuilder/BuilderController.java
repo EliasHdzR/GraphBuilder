@@ -566,7 +566,8 @@ public class BuilderController {
         edgeCounterLabel.setText(String.valueOf(edgeCount));
 
         if(adjacencyMatrixBackup != null){
-            System.out.println(hasUnsavedChanges());
+            if (hasUnsavedChanges()) fileTitleLabel.setText(archivoGrafo.getName() + "*");
+            else fileTitleLabel.setText(archivoGrafo.getName());
         }
     }
 
