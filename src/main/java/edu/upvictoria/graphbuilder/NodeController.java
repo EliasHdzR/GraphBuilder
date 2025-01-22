@@ -2,7 +2,6 @@ package edu.upvictoria.graphbuilder;
 
 import edu.upvictoria.graphbuilder.Figuras.Node;
 import javafx.fxml.FXML;
-import javafx.scene.Scene;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
@@ -25,6 +24,21 @@ public class NodeController {
     @FXML
     private void initialize() {
         nombreNodo.setText(nodo.getName());
+
+        int maxCharacters = 10;
+        nombreNodo.setTextFormatter(new javafx.scene.control.TextFormatter<>(change -> {
+            // Validar longitud máxima
+            if (change.getControlNewText().length() > maxCharacters) {
+                return null;
+            }
+
+            // Validar que solo contenga letras y números
+            if (!change.getControlNewText().matches("[a-zA-Z0-9]*")) {
+                return null;
+            }
+
+            return change;
+        }));
     }
 
     public void configureShortcuts() {
