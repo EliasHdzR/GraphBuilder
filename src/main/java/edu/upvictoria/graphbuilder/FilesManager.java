@@ -22,6 +22,7 @@ import java.util.List;
 public class FilesManager {
     public static void newFile(BuilderController controller) {
         controller.setArchivoGrafo(null);
+        controller.deleteBackups();
 
         Canvas canvas = controller.getCanvas();
         GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -43,26 +44,20 @@ public class FilesManager {
 
         Label fileTitleLabel = controller.getFileTitleLabel();
         fileTitleLabel.setText("Nuevo Archivo");
-
-        List<NodeController> nodeMenusOpen = controller.getNodeMenusOpen();
-        for(NodeController nodeMenu : nodeMenusOpen){
-            nodeMenu.cerrarVentana();
-        }
-        nodeMenusOpen.clear();
     }
 
     public static void initializeMatrix(BuilderController controller) {
-        List<Node> nodes = controller.getNodeList();
-        int currentSize = nodes.size();
+        int currentSize = controller.getNodeList().size();
 
         int[][] adjacencyMatrix = controller.getAdjacencyMatrix();
         // Si la matriz es null, inicializa como una matriz vacía
         if (adjacencyMatrix == null) {
             adjacencyMatrix = new int[currentSize][currentSize];
             controller.setAdjacencyMatrix(adjacencyMatrix);
+            return;
         }
         // Si la matriz ya existe, expande la matriz para acomodar nuevos nodos
-        else if (adjacencyMatrix.length < currentSize) {
+        if (adjacencyMatrix.length < currentSize) {
             int[][] newMatrix = new int[currentSize][currentSize];
 
             // Copia las conexiones existentes a la nueva matriz
@@ -81,27 +76,28 @@ public class FilesManager {
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivos CSV", "*.csv"));
 
         File file = fileChooser.showOpenDialog(null);
-
         if(file == null){
             return;
         }
 
         newFile(controller);
-
         if(!file.getAbsolutePath().endsWith(".csv")){
             file = new File(file.getAbsolutePath() + ".csv");
         }
 
         controller.setArchivoGrafo(file);
-
         readCSVcontent(controller);
-        controller.getFileTitleLabel().setText(controller.getArchivoGrafo().getAbsolutePath());
+        controller.deleteBackups();
+        controller.createBackups();
+
+        controller.getFileTitleLabel().setText(controller.getArchivoGrafo().getName());
         controller.showMessage("   Abierto " + controller.getArchivoGrafo().getName());
     }
 
     private static void readCSVcontent(BuilderController controller) {
         int filaMatriz = 0;
         ArrayList<Edge> edgeList = new ArrayList<>();
+
         try  {
             File archivoGrafo = controller.getArchivoGrafo();
             BufferedReader br = new BufferedReader(new FileReader(archivoGrafo));
@@ -115,6 +111,7 @@ public class FilesManager {
                 if (leyendoCoordenadas) {
                     if (linea.startsWith(";")) {
                         leyendoCoordenadas = false;
+                        FilesManager.initializeMatrix(controller);
                         continue;
                     }
 
@@ -161,8 +158,7 @@ public class FilesManager {
                                 nodo1.addToEdgeList(edge);
                                 nodo2.addToEdgeList(edge);
 
-                                Node selectedNode = controller.getSelectedNode();
-                                int fromIndex = nodes.indexOf(selectedNode);
+                                int fromIndex = nodes.indexOf(nodo1);
                                 int toIndex = nodes.indexOf(nodo2);
 
                                 if (fromIndex != -1 && toIndex != -1) {
@@ -188,7 +184,10 @@ public class FilesManager {
         // si es un archivo nuevo
         if(archivoGrafo == null){
             saveAs(controller);
-            controller.showMessage("   Guardado en " + controller.getArchivoGrafo().getName());
+
+            archivoGrafo = controller.getArchivoGrafo();
+            if (archivoGrafo == null) return;
+
             System.out.println(controller.getArchivoGrafo().getAbsolutePath());
             return;
         }
@@ -200,8 +199,11 @@ public class FilesManager {
 
             saveMatrixToCSV(archivoGrafo.getAbsolutePath(), controller);
             System.out.println(archivoGrafo.getAbsolutePath());
-            controller.getFileTitleLabel().setText(archivoGrafo.getAbsolutePath());
+
+            controller.getFileTitleLabel().setText(archivoGrafo.getName());
             controller.showMessage("   Guardado en " + archivoGrafo.getName());
+            controller.deleteBackups();
+            controller.createBackups();
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Error al guardar el archivo CSV.");
@@ -209,25 +211,33 @@ public class FilesManager {
     }
 
     public static void saveAs(BuilderController controller) {
+        Stage stage = (Stage) controller.getCanvas().getScene().getWindow();
+
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Guardar Grafo como CSV");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivos CSV", "*.csv"));
 
-        controller.setArchivoGrafo(fileChooser.showSaveDialog(null));
+        File tempFile = fileChooser.showSaveDialog(stage);
+        if(tempFile == null){
+            return;
+        }
+
+        controller.setArchivoGrafo(tempFile);
         File archivoGrafo = controller.getArchivoGrafo();
 
-        if (archivoGrafo != null) {
-            if (!archivoGrafo.getName().toLowerCase().endsWith(".csv")) {
-                archivoGrafo = new File(archivoGrafo.getAbsolutePath() + ".csv");
-            }
-            try {
-                saveMatrixToCSV(archivoGrafo.getAbsolutePath(), controller);
-                controller.getFileTitleLabel().setText(archivoGrafo.getAbsolutePath());
-                System.out.println("La matriz de adyacencia se ha guardado en '" + archivoGrafo.getName() + "'.");
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.out.println("Error al guardar el archivo CSV.");
-            }
+        if (!archivoGrafo.getName().toLowerCase().endsWith(".csv")) {
+            archivoGrafo = new File(archivoGrafo.getAbsolutePath() + ".csv");
+        }
+        try {
+            saveMatrixToCSV(archivoGrafo.getAbsolutePath(), controller);
+
+            controller.getFileTitleLabel().setText(archivoGrafo.getAbsolutePath());
+            controller.showMessage("   Guardado en " + archivoGrafo.getName());
+            controller.deleteBackups();
+            controller.createBackups();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Error al guardar el archivo CSV.");
         }
     }
 
@@ -321,8 +331,55 @@ public class FilesManager {
             }
             try {
                 ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
+                controller.showMessage("   Guardado en " + file.getName());
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+        }
+    }
+
+    public static void checkUnsavedChanges(BuilderController controller, String process) {
+        File archivoGrafo = controller.getArchivoGrafo();
+
+        // si no es para cerrar la aplicacion
+        if(process.equals("new file") || process.equals("open file")) {
+
+            //si es nuevo alavrga
+            if(archivoGrafo == null && controller.getFigures().isEmpty()){
+                if (process.equals("new file")) return;
+                else openFile(controller);
+                return;
+            }
+
+            //si es nuevo pero tiene figuras en el canvas
+            if(archivoGrafo == null && !controller.getFigures().isEmpty()){
+                controller.showUnsavedChangesPopup(process);
+                return;
+            }
+
+            // si es un archivo que ya existe y queremos abrir un nuevo canvas hay que checar si no hay cambios pendientes
+            // si hay cambios pendientes mostramos el popup, si no ps no
+            if(archivoGrafo != null){
+                if(controller.hasUnsavedChanges()){
+                    controller.showUnsavedChangesPopup(process);
+                } else {
+                    if (process.equals("new file")) newFile(controller);
+                    else openFile(controller);
+                }
+            }
+        }
+
+        // si es para cerrar la aplicacion
+        if (process.equals("exit")) {
+            if(archivoGrafo == null && controller.getFigures().isEmpty() && controller.getAdjacencyMatrixBackup() == null){
+                System.exit(0);
+                return;
+            }
+
+            if (controller.hasUnsavedChanges()) {
+                controller.showUnsavedChangesPopup(process);
+            } else {
+                System.exit(0);
             }
         }
     }

@@ -21,6 +21,24 @@ public class Node implements Figure {
         this.mCenter = center;
         this.name = nombre;
     }
+
+    /**
+     * Métod que compara dos nodos
+     * @param Node nodo a comparar
+     * @return true si los nodos son iguales, false si no
+     */
+    public boolean equals(Node node) {
+        if(!this.name.equals(node.getName())) {
+            return false;
+        }
+
+        if(this.mCenter.getX() != node.getmCenter().getX() || this.mCenter.getY() != node.getmCenter().getY()) {
+            return false;
+        }
+
+        return true;
+    }
+
     /*****************************************
      ********** GETTERS Y SETTERS ************
      *****************************************

@@ -48,8 +48,12 @@ public class Edge implements Figure {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public Node getNodo1() {
+        return nodo1;
+    }
+
+    public Node getNodo2() {
+        return nodo2;
     }
 
     /************************************************

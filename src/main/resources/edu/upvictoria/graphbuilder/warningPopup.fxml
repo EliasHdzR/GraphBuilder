@@ -4,13 +4,14 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<Pane maxHeight="282.0" maxWidth="346.0" minHeight="139.0" minWidth="312.0" prefHeight="139.0" prefWidth="312.0"
-      xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<Pane maxHeight="282.0" maxWidth="346.0" minHeight="139.0" minWidth="312.0" prefHeight="139.0" prefWidth="342.0"
+      xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:id="popupPane">
    <ImageView fitHeight="58.0" fitWidth="61.0" layoutX="22.0" layoutY="28.0" pickOnBounds="true" preserveRatio="true">
       <Image url="@images/advertencia.png"/>
    </ImageView>
-   <Button layoutX="22.0" layoutY="102.0" mnemonicParsing="false" text="Salir sin guardar"/>
-   <Button layoutX="152.0" layoutY="102.0" mnemonicParsing="false" text="Cancelar"/>
-   <Button layoutX="235.0" layoutY="102.0" mnemonicParsing="false" text="Guardar"/>
-   <Label layoutX="96.0" layoutY="47.0" text="¿Guardar cambios antes de salir?"/>
+   <Button layoutX="22.0" layoutY="102.0" mnemonicParsing="false" onAction="#exit" text="Cerrar sin guardar"/>
+   <Button fx:id="btnCancelar" layoutX="166.0" layoutY="102.0" mnemonicParsing="false" onAction="#closePopup" text="Cancelar"/>
+   <Button fx:id="btnGuardar" layoutX="249.0" layoutY="102.0" mnemonicParsing="false" onAction="#saveAndExit"
+           text="Guardar"/>
+   <Label layoutX="96.0" layoutY="47.0" text="¿Guardar cambios antes de cerrar?"/>
 </Pane>
