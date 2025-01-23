@@ -15,7 +15,7 @@ public class App extends Application {
             controller.scene = scene;
             stage.setTitle("Graph Builder");
             stage.setScene(scene);
-            controller.shortcuts();
+            controller.shortcuts(scene);
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
