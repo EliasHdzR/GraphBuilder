@@ -44,6 +44,8 @@ public class BuilderController {
     private File archivoGrafo = null;
     private Node clipboard = null;
     private Figure selectFigure = null;
+    public final List<Event> undoList = new ArrayList<>();
+    private final List<Event> redoList = new ArrayList<>();
     private final List<Node> nodeList = new ArrayList<>();
     private int[][] adjacencyMatrix;
 
@@ -114,10 +116,30 @@ public class BuilderController {
         canvas.setOnMouseExited(me -> canvas.setCursor(Cursor.DEFAULT));
 
         canvas.setOnMouseClicked(this::clickFigure);
+        canvas.setOnDragDetected(this::eventDragFigure);
         canvas.setOnMouseDragged(this::moveShape);
         canvas.setOnMouseReleased(this::endMoveShape);
 
         updateStatus("Moving Shapes");
+    }
+
+    public void shortcuts(Scene scene) {
+        scene.setOnKeyPressed(keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.C && keyEvent.isControlDown()) {
+                copy();
+            } else if (keyEvent.getCode() == KeyCode.V && keyEvent.isControlDown()) {
+                paste();
+            } else if (keyEvent.getCode() == KeyCode.DELETE) {
+                suprFigure();
+            } else if (keyEvent.getCode() == KeyCode.X && keyEvent.isControlDown()) {
+                copy();
+                suprFigure();
+            } else if (keyEvent.getCode() == KeyCode.Z && keyEvent.isControlDown()) {
+                undo();
+            } else if (keyEvent.getCode() == KeyCode.Y && keyEvent.isControlDown()) {
+                redo();
+            }
+        });
     }
 
     private void moveShape(MouseEvent mouseEvent) {
@@ -125,7 +147,6 @@ public class BuilderController {
         double x = mouseEvent.getX();
         double y = mouseEvent.getY();
         Figure figura = getFigureAt(x, y);
-
         selectFigure = figura;
 
         if (!(figura instanceof Node nodo)) {
@@ -164,6 +185,8 @@ public class BuilderController {
         double y = mouseEvent.getY();
         Figure figure = getFigureAt(x, y);
 
+        int count = 0;
+
         // si es un nodo tmb hay que borrar todas las aristas que van hacia este nodo
         if(figure instanceof Node nodo){
             int nodeIndex = nodeList.indexOf(nodo);
@@ -173,6 +196,8 @@ public class BuilderController {
             List<Edge> nodoEdgeList = nodo.getEdgeList();
             for (Edge edge : nodoEdgeList) {
                 figures.remove(edge);
+                createEvent(2, edge, undoList);
+                count++;
             }
             textToSpeech("Deleted " + nodoEdgeList.size() + "edges");
 
@@ -203,6 +228,7 @@ public class BuilderController {
             textToSpeech("Deleted edge between " + nodo1.getName() + "and" + nodo2.getName());
         }
 
+        createEvent(x, y, 2, figure, count);
         figures.remove(figure);
         drawShapes();
         setDeleteFigureStatus();
@@ -292,12 +318,20 @@ public class BuilderController {
         double y = mouseEvent.getY();
 
         CircleCenter circleCenter = new CircleCenter(x, y);
-        Node node = new Node(circleCenter, nodeList.size()+1);
+        Node node = new Node(circleCenter, nodeList.size() + 1);
         figures.add(node);
         selectFigure = node;
         nodeList.add(node);
+        createEvent(1, node, undoList);
         FilesManager.initializeMatrix(this);
         textToSpeech("Drawing Node");
+        drawShapes();
+    }
+
+    private void drawNode(String name, Node recover) {
+        figures.add(recover);
+        selectFigure = recover;
+        FilesManager.initializeMatrix(this);
         drawShapes();
     }
 
@@ -371,15 +405,14 @@ public class BuilderController {
 
             if (figure == selectedNode || figure == nodo2) {
                 ((Node) figure).addToEdgeList(arista);
-
             }
         }
 
         // añadimos la arista a la lista y la dibujamos, posteriormente reiniciamos el estado de dibujo
         figures.add(arista);
-        //System.out.println("Edge between " + selectedNode.getName() + " and " + nodo2.getName());
         textToSpeech("Edge between: " + selectedNode.getName() + " and " + nodo2.getName() + "created");
         selectFigure = arista;
+        createEvent(1, arista, undoList);
         drawShapes();
 
         int fromIndex = nodeList.indexOf(selectedNode);
@@ -393,6 +426,12 @@ public class BuilderController {
         initialY = null;
         selectedNode = null;
         setDrawEdgeStatus();
+    }
+
+    private void recoverEdge(Figure edge) {
+        figures.add(edge);
+        selectFigure = edge;
+        drawShapes();
     }
 
     private void removeHandlers() {
@@ -751,7 +790,7 @@ public class BuilderController {
      ************ EDITAR ***************
      ************************************/
 
-    private void clickFigure(MouseEvent mouseEvent){
+    private void clickFigure(MouseEvent mouseEvent) {
         /*
          * Esto existe para cuando se clikea una figura pero no se mueve
          */
@@ -759,10 +798,32 @@ public class BuilderController {
         double y = mouseEvent.getY();
 
         selectFigure = getFigureAt(x, y);
+    }
 
+    private void eventDragFigure(MouseEvent mouseEvent) {
+        double x = mouseEvent.getX();
+        double y = mouseEvent.getY();
+        Figure figure = getFigureAt(x, y);
+        createEvent(x, y, 3, figure, undoList);
+        selectFigure = figure;
     }
 
     private void suprFigure() {
+        if (selectFigure != null) {
+            if (selectFigure instanceof Node nodo) {
+                List<Edge> nodoEdgeList = nodo.getEdgeList();
+                for (Edge edge : nodoEdgeList) {
+                    figures.remove(edge);
+                }
+            }
+            createEvent(2, selectFigure, undoList);
+            figures.remove(selectFigure);
+            selectFigure = null;
+            drawShapes();
+        }
+    }
+
+    private void suprFigure(boolean flag) {
         if (selectFigure != null) {
             if (selectFigure instanceof Node nodo) {
                 List<Edge> nodoEdgeList = nodo.getEdgeList();
@@ -777,8 +838,8 @@ public class BuilderController {
     }
 
     @FXML
-    private void copy(){
-        if(selectFigure instanceof Node node){
+    private void copy() {
+        if (selectFigure instanceof Node node) {
             /*
              * Cuando acabas de correr el programa aveces no copia nada
              * y no se porque pero x somos chavos mejor vamos a chelear
@@ -789,8 +850,8 @@ public class BuilderController {
     }
 
     @FXML
-    private void paste(){
-        if(clipboard != null){
+    private void paste() {
+        if (clipboard != null) {
             Robot robot = new Robot();
             /*
              * No se por que se le restan esas cantidades, solo se que
@@ -806,6 +867,126 @@ public class BuilderController {
             selectFigure = node;
             FilesManager.initializeMatrix(this);
             drawShapes();
+        }
+    }
+
+    @FXML
+    private void cut() {
+        copy();
+        suprFigure();
+    }
+
+    protected void createEvent(int type, Figure figure, List<Event> list) {
+        Event event = new Event();
+        event.setType(type);
+        event.setFigure(figure);
+        event.setName(figure);
+        list.add(event);
+    }
+
+    private void createEvent(double x, double y, int type, Figure figure, List<Event> list) {
+        Event event = new Event();
+        event.setType(type);
+        event.setFigure(figure);
+        event.setX(x);
+        event.setY(y);
+        list.add(event);
+    }
+
+    private void createEvent(double x, double y, int type, Figure figure, int count) {
+        Event event = new Event();
+        event.setType(type);
+        event.setFigure(figure);
+        event.setX(x);
+        event.setY(y);
+        event.setCount(count);
+        undoList.add(event);
+    }
+
+    private void removeFigure(Event event, List<Event> list) {
+        selectFigure = event.getFigure();
+        suprFigure(true);
+        if (event.getFigure() instanceof Node) {
+            nodeList.remove(event.getFigure());
+        }
+        list.add(event);
+    }
+
+    private void recoverFigure(Event event, List<Event> list) {
+        if (event.getFigure() instanceof Node node) {
+            drawNode(node.getName(), node);
+            nodeList.add(node);
+            if (event.getCount() != 0) {
+                for (int i = 0; i < event.getCount(); i++) {
+                    Event temp = list.getLast();
+                    list.removeLast();
+                    recoverEdge(temp.getFigure());
+                }
+            }
+        } else {
+            recoverEdge(event.getFigure());
+        }
+    }
+
+    private void recoverPosition(Event event, List<Event> list) {
+        if (event.getFigure() instanceof Node node) {
+            createEvent(node.getmCenter().getX(), node.getmCenter().getY(), 3, node, list);
+            node.move(event.getX(), event.getY());
+        }
+        drawShapes();
+    }
+
+    private void recoverName(Event event, List<Event> list) {
+        if (event.getFigure() instanceof Node node) {
+            createEvent(4, node, list);
+            node.setName(event.getName());
+        }
+        drawShapes();
+    }
+
+    @FXML
+    private void undo() {
+        if (!undoList.isEmpty()) {
+            Event event = undoList.getLast();
+            undoList.removeLast();
+            switch (event.getType()) {
+                case 1:
+                    removeFigure(event, redoList);
+                    break;
+                case 2:
+                    recoverFigure(event, undoList);
+                    redoList.add(event);
+                    break;
+                case 3:
+                    recoverPosition(event, redoList);
+                    break;
+                case 4:
+                    recoverName(event, redoList);
+                    break;
+            }
+        }
+    }
+
+    @FXML
+    private void redo() {
+        if (!redoList.isEmpty()) {
+            Event event = redoList.getLast();
+            redoList.removeLast();
+            switch (event.getType()) {
+                case 1:
+                    recoverFigure(event, redoList);
+                    undoList.add(event);
+                    break;
+                case 2:
+                    removeFigure(event, undoList);
+                    break;
+                case 3:
+                    recoverPosition(event, undoList);
+                    break;
+                case 4:
+                    recoverName(event, undoList);
+                    break;
+            }
         }
     }
 
