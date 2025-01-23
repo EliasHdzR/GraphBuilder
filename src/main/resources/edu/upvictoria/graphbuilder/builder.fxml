@@ -7,7 +7,7 @@
 
 <VBox prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="edu.upvictoria.graphbuilder.BuilderController">
-    <MenuBar>
+    <MenuBar fx:id="menuBar">
         <Menu mnemonicParsing="false" text="File">
             <MenuItem mnemonicParsing="false" onAction="#newFile"
                       text="New                                          Ctrl+N"/>
@@ -37,9 +37,6 @@
                       text="Copy                                         Ctrl+C"/>
             <MenuItem mnemonicParsing="false" onAction="#paste"
                       text="Paste                                        Ctrl+V"/>
-        </Menu>
-        <Menu mnemonicParsing="false" text="Accessibility">
-            <MenuItem mnemonicParsing="false" text="Enable eye-tracking control"/>
         </Menu>
         <Menu mnemonicParsing="false" text="Help">
             <MenuItem mnemonicParsing="false" text="About"/>

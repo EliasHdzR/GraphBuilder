@@ -18,10 +18,7 @@ import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.ToolBar;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.robot.Robot;
@@ -31,6 +28,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
+import javafx.animation.PauseTransition;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -54,6 +52,9 @@ public class BuilderController {
     private boolean isMovingaNode = false;
     private VoiceManager voiceManager = VoiceManager.getInstance();
     private Voice voice = null;
+
+    @FXML
+    private MenuBar menuBar;
 
 
     // info guardada de un archivo abierto (para poder comparar si se le han realizado cambios)
@@ -87,6 +88,8 @@ public class BuilderController {
         buttons.add(deleteShapesButton);
         buttons.add(drawNodeButton);
         buttons.add(drawEdgeButton);
+        menuBar.getMenus().forEach(this::attachTTSHandlersToMenu);
+        addTTStoToolbarButtons();
 
         //desabilitar botones de la barra
         canvasToPngBtn.disableProperty().bind(Bindings.size(figures).isEqualTo(0));
@@ -213,7 +216,7 @@ public class BuilderController {
         canvas.setOnMouseEntered(me -> canvas.setCursor(Cursor.HAND));
         canvas.setOnMouseExited(me -> canvas.setCursor(Cursor.DEFAULT));
         canvas.setOnMouseClicked(this::openFigureMenu);
-        updateStatus("Open Figure Menu");
+        updateStatus("Edit Figures");
     }
 
     private void openFigureMenu(MouseEvent mouseEvent) {
@@ -622,6 +625,53 @@ public class BuilderController {
     /************************************
      ************ TTS ***************
      ************************************/
+    private void addTTStoToolbarButtons() {
+        // Iterate through all toolbar children
+        toolBar.getItems().forEach(node -> {
+            if (node instanceof Button button) {
+                Tooltip tooltip = button.getTooltip(); // Get the tooltip of the button
+                if (tooltip != null) {
+                    PauseTransition pause = new PauseTransition(Duration.seconds(1)); // x-second delay
+                    button.setOnMouseEntered(event -> {
+                        pause.setOnFinished(e -> textToSpeech(tooltip.getText()));
+                        pause.playFromStart();
+                    });
+                    button.setOnMouseExited(event -> pause.stop()); // Stop the delay if the mouse exits
+                }
+            }
+        });
+    }
+
+    private void attachTTSHandlersToMenu(Menu menu) {
+        //Menu itself//
+        PauseTransition menuPause = new PauseTransition(Duration.seconds(1)); // x-second delay
+        //PauseTransition pause = new PauseTransition(Duration.seconds(1.5)); // works too
+        menu.setOnShowing(event -> {
+            menuPause.setOnFinished(e -> textToSpeech(menu.getText()));
+            menuPause.playFromStart();
+        });
+        menu.setOnHidden(event -> menuPause.stop()); //Stop if stage hidden
+
+        //MenuItems//
+        for (int i = 0; i < menu.getItems().size(); i++) {
+            MenuItem originalItem = menu.getItems().get(i);
+
+            if (!(originalItem instanceof CustomMenuItem)) {
+                Label label = new Label(originalItem.getText());
+
+                PauseTransition itemPause = new PauseTransition(Duration.seconds(1)); // x-second delay
+                label.setOnMouseEntered(e -> {
+                    itemPause.setOnFinished(evt -> textToSpeech(originalItem.getText()));
+                    itemPause.playFromStart();
+                });
+                label.setOnMouseExited(e -> itemPause.stop()); // Stop the delay if the mouse exits
+
+                CustomMenuItem customItem = new CustomMenuItem(label);
+                customItem.setOnAction(originalItem.getOnAction()); // Preserve original action
+                menu.getItems().set(i, customItem);
+            }
+        }
+    }
 
     private void updateStatus(String newStatus) {
         if (!newStatus.equals(currentStatus)) {
@@ -640,14 +690,14 @@ public class BuilderController {
 
             textToSpeech("TalkBack Activated");
         } else {
-            textToSpeechWaits("TalkBack Deactivated");
+            textToSpeechWaits();
             voice.deallocate();
             isTalkBackOn = false;
         }
     }
 
-    private void textToSpeechWaits(String string) {
-        voice.speak(string);
+    private void textToSpeechWaits() {
+        voice.speak("TalkBack Deactivated");
     }
 
     private void textToSpeech(String text) {
