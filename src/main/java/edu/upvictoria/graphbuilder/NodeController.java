@@ -30,8 +30,13 @@ public class NodeController {
         stage.requestFocus();
     }
 
+    public void cerrarVentana() {
+        stage.close();
+    }
+
     @FXML
     private void guardarNombre() {
+        builderController.createEvent(4, nodo, builderController.undoList);
         nodo.setName(nombreNodo.getText());
         builderController.drawShapes();
         stage.setTitle(nombreNodo.getText());
