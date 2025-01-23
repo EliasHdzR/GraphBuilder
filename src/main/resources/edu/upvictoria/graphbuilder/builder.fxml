@@ -38,6 +38,9 @@
             <MenuItem mnemonicParsing="false" onAction="#paste"
                       text="Paste                                        Ctrl+V"/>
         </Menu>
+        <Menu mnemonicParsing="false" text="Accesibility">
+            <MenuItem fx:id="btnTalkback" mnemonicParsing="false" text="Enable TalkBack" onAction="#switchTalkBack"/>
+        </Menu>
         <Menu mnemonicParsing="false" text="Help">
             <MenuItem mnemonicParsing="false" text="About"/>
             <MenuItem mnemonicParsing="false" text="Documentation"/>

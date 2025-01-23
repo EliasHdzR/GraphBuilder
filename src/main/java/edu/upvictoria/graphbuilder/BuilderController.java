@@ -77,6 +77,7 @@ public class BuilderController {
     @FXML private Button drawNodeButton;
     @FXML private Button drawEdgeButton;
     @FXML private MenuItem canvasToPngBtn;
+    @FXML private MenuItem btnTalkback;
     private final ArrayList<Button> buttons = new ArrayList<>();
 
     @FXML
@@ -377,7 +378,7 @@ public class BuilderController {
         // añadimos la arista a la lista y la dibujamos, posteriormente reiniciamos el estado de dibujo
         figures.add(arista);
         //System.out.println("Edge between " + selectedNode.getName() + " and " + nodo2.getName());
-        textToSpeech("Edge between: " + selectedNode.getName() + " and " + nodo2.getName() + "eliminated");
+        textToSpeech("Edge between: " + selectedNode.getName() + " and " + nodo2.getName() + "created");
         selectFigure = arista;
         drawShapes();
 
@@ -680,6 +681,7 @@ public class BuilderController {
         }
     }
 
+    @FXML
     private void switchTalkBack() {
         if (!isTalkBackOn){
             isTalkBackOn = true;
@@ -688,11 +690,13 @@ public class BuilderController {
             voice = voiceManager.getVoice("kevin16");
             voice.allocate();
 
+            btnTalkback.setText("Disable TalkBack");
             textToSpeech("TalkBack Activated");
         } else {
             textToSpeechWaits();
             voice.deallocate();
             isTalkBackOn = false;
+            btnTalkback.setText("Enable TalkBack");
         }
     }
 
@@ -700,7 +704,7 @@ public class BuilderController {
         voice.speak("TalkBack Deactivated");
     }
 
-    private void textToSpeech(String text) {
+    public void textToSpeech(String text) {
         if (isTalkBackOn){
             new Thread(() -> {
                 try {

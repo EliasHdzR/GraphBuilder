@@ -92,6 +92,7 @@ public class FilesManager {
 
         controller.getFileTitleLabel().setText(controller.getArchivoGrafo().getName());
         controller.showMessage("   Opened " + controller.getArchivoGrafo().getName());
+        controller.textToSpeech("Opened " + controller.getArchivoGrafo().getName());
     }
 
     private static void readCSVcontent(BuilderController controller) {
@@ -202,6 +203,7 @@ public class FilesManager {
 
             controller.getFileTitleLabel().setText(archivoGrafo.getName());
             controller.showMessage("   Saved as " + archivoGrafo.getName());
+            controller.textToSpeech("Saved as " + archivoGrafo.getName());
             controller.deleteBackups();
             controller.createBackups();
         } catch (IOException e) {
@@ -233,6 +235,7 @@ public class FilesManager {
 
             controller.getFileTitleLabel().setText(archivoGrafo.getAbsolutePath());
             controller.showMessage("   Saved as " + archivoGrafo.getName());
+            controller.textToSpeech("Saved as " + archivoGrafo.getName());
             controller.deleteBackups();
             controller.createBackups();
         } catch (IOException e) {
@@ -331,7 +334,8 @@ public class FilesManager {
             }
             try {
                 ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
-                controller.showMessage("   Saved as" + file.getName());
+                controller.showMessage("   Saved as " + file.getName());
+                controller.textToSpeech("Saved as" + file.getName());
             } catch (IOException e) {
                 e.printStackTrace();
             }
