@@ -123,25 +123,6 @@ public class BuilderController {
         updateStatus("Moving Shapes");
     }
 
-    public void shortcuts(Scene scene) {
-        scene.setOnKeyPressed(keyEvent -> {
-            if (keyEvent.getCode() == KeyCode.C && keyEvent.isControlDown()) {
-                copy();
-            } else if (keyEvent.getCode() == KeyCode.V && keyEvent.isControlDown()) {
-                paste();
-            } else if (keyEvent.getCode() == KeyCode.DELETE) {
-                suprFigure();
-            } else if (keyEvent.getCode() == KeyCode.X && keyEvent.isControlDown()) {
-                copy();
-                suprFigure();
-            } else if (keyEvent.getCode() == KeyCode.Z && keyEvent.isControlDown()) {
-                undo();
-            } else if (keyEvent.getCode() == KeyCode.Y && keyEvent.isControlDown()) {
-                redo();
-            }
-        });
-    }
-
     private void moveShape(MouseEvent mouseEvent) {
         canvas.setCursor(Cursor.CLOSED_HAND);
         double x = mouseEvent.getX();
@@ -603,27 +584,22 @@ public class BuilderController {
 
     public void shortcuts() {
         scene.setOnKeyPressed( keyEvent -> {
-            if (keyEvent.getCode() == KeyCode.N && keyEvent.isControlDown()) {
-                newFile();
+            if (keyEvent.getCode() == KeyCode.N && keyEvent.isControlDown()) newFile();
+            if (keyEvent.getCode() == KeyCode.O && keyEvent.isControlDown()) openFile();
+            if (keyEvent.getCode() == KeyCode.S && keyEvent.isControlDown()) saveFile();
+            if (keyEvent.getCode() == KeyCode.S && keyEvent.isControlDown() && keyEvent.isShiftDown()) saveAs();
+            if (keyEvent.getCode() == KeyCode.P && keyEvent.isControlDown()) CanvasToPng();
+            if (keyEvent.getCode() == KeyCode.Q && keyEvent.isControlDown()) exitApp();
+            if (keyEvent.getCode() == KeyCode.F2) switchTalkBack();
+            if (keyEvent.getCode() == KeyCode.C && keyEvent.isControlDown()) copy();
+            if (keyEvent.getCode() == KeyCode.V && keyEvent.isControlDown()) paste();
+            if (keyEvent.getCode() == KeyCode.DELETE) suprFigure();
+            if (keyEvent.getCode() == KeyCode.X && keyEvent.isControlDown()) {
+                copy();
+                suprFigure();
             }
-            if (keyEvent.getCode() == KeyCode.O && keyEvent.isControlDown()) {
-                openFile();
-            }
-            if (keyEvent.getCode() == KeyCode.S && keyEvent.isControlDown()) {
-                saveFile();
-            }
-            if (keyEvent.getCode() == KeyCode.S && keyEvent.isControlDown() && keyEvent.isShiftDown()) {
-                saveAs();
-            }
-            if (keyEvent.getCode() == KeyCode.P && keyEvent.isControlDown()) {
-                CanvasToPng();
-            }
-            if (keyEvent.getCode() == KeyCode.Q && keyEvent.isControlDown()) {
-                exitApp();
-            }
-            if (keyEvent.getCode() == KeyCode.F2) {
-                switchTalkBack();
-            }
+            if (keyEvent.getCode() == KeyCode.Z && keyEvent.isControlDown()) undo();
+            if (keyEvent.getCode() == KeyCode.Y && keyEvent.isControlDown()) redo();
         });
     }
 
