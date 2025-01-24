@@ -110,4 +110,12 @@ public class Edge implements Figure {
         double dy = py - yy;
         return Math.sqrt(dx * dx + dy * dy);
     }
+
+    public Node getNodo1() {
+        return nodo1;
+    }
+    public Node getNodo2() {
+        return nodo2;
+    }
+
 }
