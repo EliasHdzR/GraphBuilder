@@ -784,6 +784,7 @@ public class BuilderController {
             Node node = new Node(clipboard.getName() + " Copy", circleCenter);
             figures.add(node);
             nodeList.add(node);
+            createEvent(1, node, undoList);
             selectFigure = node;
             initializeMatrix();
             drawShapes();
