@@ -62,6 +62,10 @@ public class Node implements Figure {
         edgeList.add(edge);
     }
 
+    public void removeFromEdgeList(Edge edge) {
+        edgeList.remove(edge);
+    }
+
     public List<Edge> getEdgeList() {
         return edgeList;
     }

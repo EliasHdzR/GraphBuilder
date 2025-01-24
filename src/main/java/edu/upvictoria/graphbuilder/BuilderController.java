@@ -202,6 +202,10 @@ public class BuilderController {
         if(figure instanceof Edge arista){
             Node nodo1 = arista.getNodo1();
             Node nodo2 = arista.getNodo2();
+
+            nodo1.removeFromEdgeList(arista);
+            nodo2.removeFromEdgeList(arista);
+
             int fromIndex = nodeList.indexOf(nodo1);
             int toIndex = nodeList.indexOf(nodo2);
             adjacencyMatrix[fromIndex][toIndex] = 0;
@@ -211,7 +215,6 @@ public class BuilderController {
 
         createEvent(x, y, 2, figure, count);
         figures.remove(figure);
-        nodeList.remove(figure);
         drawShapes();
         setDeleteFigureStatus();
     }
