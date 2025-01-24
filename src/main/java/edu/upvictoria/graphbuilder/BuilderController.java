@@ -182,6 +182,7 @@ public class BuilderController {
 
         createEvent(x, y, 2, figure, count);
         figures.remove(figure);
+        nodeList.remove(figure);
         drawShapes();
         setDeleteFigureStatus();
     }
