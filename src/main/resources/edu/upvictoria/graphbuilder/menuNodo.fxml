@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
+<?import javafx.scene.text.Font?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
 <Pane maxHeight="282.0" maxWidth="346.0" minHeight="175.0" minWidth="346.0" prefHeight="175.0" prefWidth="346.0"
       xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
-    <Label layoutX="55.0" layoutY="49.0" text="Name"/>
-    <TextField fx:id="nombreNodo" layoutX="133.0" layoutY="44.0"/>
-    <Button layoutX="225.0" layoutY="103.0" mnemonicParsing="false" text="Accept" onAction="#guardarNombre"/>
-    <Button layoutX="137.0" layoutY="103.0" mnemonicParsing="false" text="Cancel" onAction="#cerrarVentana"/>
+    <Label layoutX="55.0" layoutY="66.0" text="Name"/>
+    <TextField fx:id="nombreNodo" layoutX="105.0" layoutY="61.0" prefHeight="29.0" prefWidth="189.0" />
+    <Button fx:id="btnAccept" layoutX="235.0" layoutY="103.0" mnemonicParsing="false" onAction="#guardarNombre" text="Accept"/>
+    <Button fx:id="btnCancel" layoutX="164.0" layoutY="103.0" mnemonicParsing="false" onAction="#cerrarVentana" text="Cancel"/>
+    <Label layoutX="18.0" layoutY="14.0" text="Node Properties">
+        <font>
+            <Font name="System Bold" size="18.0"/>
+        </font>
+    </Label>
 </Pane>

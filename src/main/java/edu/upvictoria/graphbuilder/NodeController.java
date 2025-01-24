@@ -1,10 +1,15 @@
 package edu.upvictoria.graphbuilder;
 
 import edu.upvictoria.graphbuilder.Figuras.Node;
+import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class NodeController {
     //variables del controlador
@@ -14,6 +19,8 @@ public class NodeController {
 
     //elementos de la gui
     @FXML private TextField nombreNodo;
+    @FXML private Button btnAccept;
+    @FXML private Button btnCancel;
 
     public NodeController(Node nodo, Stage stage, BuilderController builderController) {
         this.nodo = nodo;
@@ -42,14 +49,39 @@ public class NodeController {
     }
 
     public void configureShortcuts() {
-        stage.getScene().setOnKeyPressed(keyEvent -> {
+        stage.getScene().addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
             if (keyEvent.getCode() == KeyCode.ENTER) {
                 guardarNombre();
+                keyEvent.consume();
             }
             if (keyEvent.getCode() == KeyCode.ESCAPE) {
                 cerrarVentana();
+                keyEvent.consume();
             }
         });
+    }
+
+    public void addTTStoButtons() {
+        PauseTransition pauseNombre = new PauseTransition(Duration.seconds(1));
+        nombreNodo.setOnMouseEntered(event -> {
+            pauseNombre.setOnFinished(e -> builderController.textToSpeech("node name input"));
+            pauseNombre.playFromStart();
+        });
+        nombreNodo.setOnMouseExited(event -> pauseNombre.stop());
+
+        PauseTransition pauseGuardar = new PauseTransition(Duration.seconds(1));
+        btnAccept.setOnMouseEntered(event -> {
+            pauseGuardar.setOnFinished(e -> builderController.textToSpeech("accept"));
+            pauseGuardar.playFromStart();
+        });
+        btnAccept.setOnMouseExited(event -> pauseGuardar.stop());
+
+        PauseTransition pauseCancelar = new PauseTransition(Duration.seconds(1));
+        btnCancel.setOnMouseEntered(event -> {
+            pauseCancelar.setOnFinished(e -> builderController.textToSpeech("cancel"));
+            pauseCancelar.playFromStart();
+        });
+        btnCancel.setOnMouseExited(event -> pauseCancelar.stop());
     }
 
     public void cerrarVentana() {

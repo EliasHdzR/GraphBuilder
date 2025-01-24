@@ -285,6 +285,10 @@ public class BuilderController {
             subStage.initStyle(StageStyle.UNDECORATED);
             nodoControlador.configureShortcuts();
 
+            if (isTalkBackOn){
+                nodoControlador.addTTStoButtons();
+            }
+
             // Mostrar la ventana
             subStage.show();
         } catch (Exception e) {
@@ -580,6 +584,10 @@ public class BuilderController {
 
             subStage.initStyle(StageStyle.UNDECORATED);
             warningController.focusBtnGuardar();
+
+            if (isTalkBackOn){
+                warningController.addTTStoButtons();
+            }
 
             // Mostrar la ventana
             subStage.show();

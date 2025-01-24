@@ -15,15 +15,15 @@
                       text="Open...                                      Ctrl+O"/>
             <SeparatorMenuItem mnemonicParsing="false"/>
             <MenuItem mnemonicParsing="false" onAction="#saveFile"
-                      text="Save                                         Ctrl+S"/>
+                      text="Save                                           Ctrl+S"/>
             <MenuItem mnemonicParsing="false" onAction="#saveAs"
-                      text="Save As...                     Ctrl+Shift+S"/>
+                      text="Save As...                        Ctrl+Shift+S"/>
             <SeparatorMenuItem mnemonicParsing="false"/>
-            <MenuItem fx:id="canvasToPngBtn" mnemonicParsing="false" onAction="#CanvasToPng"
-                      text="Export to PNG...                   Ctrl+P"/>
+            <MenuItem fx:id="canvasToPngBtn" onAction="#CanvasToPng"
+                      text="Export to PNG...                      Ctrl+P"/>
             <SeparatorMenuItem mnemonicParsing="false"/>
             <MenuItem mnemonicParsing="false" onAction="#exitApp"
-                      text="Exit                                          Ctrl+Q"/>
+                      text="Exit                                            Ctrl+Q"/>
         </Menu>
         <Menu mnemonicParsing="false" text="Edit">
             <MenuItem mnemonicParsing="false" onAction="#undo"
