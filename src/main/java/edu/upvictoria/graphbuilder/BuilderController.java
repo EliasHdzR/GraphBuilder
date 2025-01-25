@@ -21,6 +21,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 import javafx.scene.robot.Robot;
 
 import javafx.scene.layout.Pane;
@@ -52,7 +53,7 @@ public class BuilderController {
     private boolean isTalkBackOn = false;
     private String currentStatus = "";
     private boolean isMovingaNode = false;
-    private VoiceManager voiceManager = VoiceManager.getInstance();
+    private final VoiceManager voiceManager = VoiceManager.getInstance();
     private Voice voice = null;
 
     @FXML
@@ -313,7 +314,7 @@ public class BuilderController {
         nodeList.add(node);
         createEvent(1, node, undoList);
         FilesManager.initializeMatrix(this);
-        textToSpeech("Drawing Node");
+        textToSpeech(node.getName() + " created");
         drawShapes();
     }
 
@@ -431,7 +432,6 @@ public class BuilderController {
     }
 
     public boolean hasUnsavedChanges(){
-
         return !compareMatrices() || !compareNodeList();
     }
 
@@ -440,23 +440,14 @@ public class BuilderController {
      * @return true si son iguales, false si no
      */
     private boolean compareMatrices(){
-        if (adjacencyMatrix == null || adjacencyMatrixBackup == null) {
-            return false;
-        }
-
-        if (adjacencyMatrix.length != adjacencyMatrixBackup.length) {
-            return false;
-        }
+        if (adjacencyMatrix == null || adjacencyMatrixBackup == null) return false;
+        if (adjacencyMatrix.length != adjacencyMatrixBackup.length) return false;
 
         for (int i = 0; i < adjacencyMatrix.length; i++) {
-            if (adjacencyMatrix[i].length != adjacencyMatrixBackup[i].length) {
-                return false;
-            }
+            if (adjacencyMatrix[i].length != adjacencyMatrixBackup[i].length) return false;
 
             for (int j = 0; j < adjacencyMatrix[i].length; j++) {
-                if (adjacencyMatrix[i][j] != adjacencyMatrixBackup[i][j]) {
-                    return false;
-                }
+                if (adjacencyMatrix[i][j] != adjacencyMatrixBackup[i][j]) return false;
             }
         }
 
@@ -468,21 +459,14 @@ public class BuilderController {
      * @return true si son iguales, false si no
      */
     private boolean compareNodeList(){
-        if (nodeListBackup == null) {
-            return false;
-        }
-
-        if (nodeList.size() != nodeListBackup.size()) {
-            return false;
-        }
+        if (nodeListBackup == null) return false;
+        if (nodeList.size() != nodeListBackup.size()) return false;
 
         for (int i = 0; i < nodeList.size(); i++) {
             Node node = nodeList.get(i);
             Node nodeBackup = nodeListBackup.get(i);
 
-            if(!nodeBackup.equals(node)){
-                return false;
-            }
+            if(!nodeBackup.equals(node)) return false;
         }
 
         return true;
@@ -619,7 +603,9 @@ public class BuilderController {
         int edgeCount = 0;
 
         for (Figure figure : figures) {
-            figure.draw(gc);
+            if(figure == selectFigure && figure instanceof Node node) node.draw(gc, Color.BLUE);
+            else figure.draw(gc);
+
             if(figure instanceof Edge){
                 edgeCount++;
             }
@@ -786,6 +772,8 @@ public class BuilderController {
         double y = mouseEvent.getY();
 
         selectFigure = getFigureAt(x, y);
+        if(selectFigure instanceof Node node) textToSpeech("Node " + node.getName() + " selected");
+        drawShapes();
     }
 
     private void eventDragFigure(MouseEvent mouseEvent) {
@@ -834,6 +822,7 @@ public class BuilderController {
              * con toda la bandita caguamera.
              */
             clipboard = node;
+            textToSpeech("Node " + node.getName() + " copied");
         }
     }
 
@@ -852,6 +841,7 @@ public class BuilderController {
             Node node = new Node(clipboard.getName() + " Copy", circleCenter);
             figures.add(node);
             nodeList.add(node);
+            textToSpeech("Node " + node.getName() + " pasted");
             createEvent(1, node, undoList);
             selectFigure = node;
             FilesManager.initializeMatrix(this);
@@ -936,6 +926,7 @@ public class BuilderController {
     @FXML
     private void undo() {
         if (!undoList.isEmpty()) {
+            textToSpeech("Undo");
             Event event = undoList.getLast();
             undoList.removeLast();
             switch (event.getType()) {
@@ -959,6 +950,7 @@ public class BuilderController {
     @FXML
     private void redo() {
         if (!redoList.isEmpty()) {
+            textToSpeech("Redo");
             Event event = redoList.getLast();
             redoList.removeLast();
             switch (event.getType()) {
