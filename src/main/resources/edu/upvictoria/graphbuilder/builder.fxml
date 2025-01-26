@@ -8,7 +8,7 @@
 <VBox prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="edu.upvictoria.graphbuilder.BuilderController">
     <MenuBar fx:id="menuBar">
-        <Menu mnemonicParsing="false" text="File">
+        <Menu text="_File">
             <MenuItem mnemonicParsing="false" onAction="#newFile"
                       text="New                                          Ctrl+N"/>
             <MenuItem mnemonicParsing="false" onAction="#openFile"
@@ -25,31 +25,30 @@
             <MenuItem mnemonicParsing="false" onAction="#exitApp"
                       text="Exit                                            Ctrl+Q"/>
         </Menu>
-        <Menu mnemonicParsing="false" text="Edit">
+        <Menu text="_Edit">
             <MenuItem mnemonicParsing="false" onAction="#undo"
                       text="Undo                                         Ctrl+Z"/>
             <MenuItem mnemonicParsing="false" onAction="#redo"
                       text="Redo                                          Ctrl+Y"/>
             <SeparatorMenuItem mnemonicParsing="false"/>
             <MenuItem mnemonicParsing="false" onAction="#cut"
-                      text="Cut                                           Ctrl+X"/>
+                      text="Cut                                            Ctrl+X"/>
             <MenuItem mnemonicParsing="false" onAction="#copy"
                       text="Copy                                         Ctrl+C"/>
             <MenuItem mnemonicParsing="false" onAction="#paste"
                       text="Paste                                        Ctrl+V"/>
         </Menu>
-        <Menu mnemonicParsing="false" text="Accesibility">
-            <MenuItem fx:id="btnTalkback" mnemonicParsing="false" text="Enable TalkBack" onAction="#switchTalkBack"/>
+        <Menu text="_Accesibility">
+            <MenuItem fx:id="btnTalkback" mnemonicParsing="false" text="Enable TalkBack     F2" onAction="#switchTalkBack"/>
         </Menu>
-        <Menu mnemonicParsing="false" text="Help">
-            <MenuItem mnemonicParsing="false" text="About"/>
-            <MenuItem mnemonicParsing="false" text="Documentation"/>
+        <Menu text="_Help">
+            <MenuItem mnemonicParsing="false" text="Documentation    F1" onAction="#openDocumentation"/>
         </Menu>
     </MenuBar>
     <ToolBar fx:id="toolBar" prefHeight="41.0" prefWidth="600.0">
         <Button mnemonicParsing="false" onAction="#setMovingShapesStatus" prefHeight="25.0" prefWidth="28.0" fx:id="moveShapesButton">
             <tooltip>
-                <Tooltip text="Move Figures"/>
+                <Tooltip text="Move Figures (M)"/>
             </tooltip>
             <graphic>
                 <ImageView>
@@ -60,7 +59,7 @@
         <Separator orientation="VERTICAL" prefHeight="0.0" prefWidth="0.0"/>
         <Button mnemonicParsing="false" onAction="#setOpenFigureMenuStatus" prefHeight="25.0" prefWidth="28.0" fx:id="openMenusButton">
             <tooltip>
-                <Tooltip text="Edit Properties"/>
+                <Tooltip text="Edit Properties (P)"/>
             </tooltip>
             <graphic>
                 <ImageView>
@@ -70,7 +69,7 @@
         </Button>
         <Button mnemonicParsing="false" onAction="#setDeleteFigureStatus" prefHeight="25.0" prefWidth="28.0" fx:id="deleteShapesButton">
             <tooltip>
-                <Tooltip text="Delete Figures"/>
+                <Tooltip text="Delete Figures (D)"/>
             </tooltip>
             <graphic>
                 <ImageView>
@@ -81,7 +80,7 @@
         <Separator orientation="VERTICAL" prefHeight="0.0" prefWidth="0.0"/>
         <Button mnemonicParsing="false" onAction="#setDrawNodeStatus" prefHeight="25.0" prefWidth="28.0" fx:id="drawNodeButton">
             <tooltip>
-                <Tooltip text="Node"/>
+                <Tooltip text="Node (N)"/>
             </tooltip>
             <graphic>
                 <ImageView>
@@ -91,7 +90,7 @@
         </Button>
         <Button mnemonicParsing="false" onAction="#setDrawEdgeStatus" prefHeight="25.0" prefWidth="28.0" fx:id="drawEdgeButton">
             <tooltip>
-                <Tooltip text="Edge"/>
+                <Tooltip text="Edge (E)"/>
             </tooltip>
             <graphic>
                 <ImageView>

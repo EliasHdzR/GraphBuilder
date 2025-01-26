@@ -19,6 +19,11 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
@@ -37,6 +42,7 @@ import java.util.List;
 
 public class BuilderController {
     // variables del controlador
+    private App app;
     public Scene scene;
     private final ObservableList<Figure> figures = FXCollections.observableArrayList();
     private Double initialX = null;
@@ -102,6 +108,16 @@ public class BuilderController {
         setMovingShapesStatus();
     }
 
+    @FXML
+    public void openDocumentation(){
+        try {
+            // Usa HostServices para abrir el enlace
+            app.getHostServices().showDocument("https://drive.google.com/file/d/1tUCGJrJgx1mtU65VH_3w7qu2sYefLuSJ/view?usp=sharing");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     /************************************
      **** FUNCIONES DEL BUILDER MAIN ****
      ************************************/
@@ -111,6 +127,7 @@ public class BuilderController {
         removeHandlers();
         setDefaultStyle();
         setActiveStyle(moveShapesButton);
+        moveShapesButton.requestFocus();
 
         scene = canvas.getScene();
         canvas.setOnMouseEntered(me -> canvas.setCursor(Cursor.OPEN_HAND));
@@ -154,6 +171,7 @@ public class BuilderController {
         removeHandlers();
         setDefaultStyle();
         setActiveStyle(deleteShapesButton);
+        deleteShapesButton.requestFocus();
 
         scene = canvas.getScene();
         canvas.setOnMouseEntered(me -> canvas.setCursor(Cursor.HAND));
@@ -225,6 +243,7 @@ public class BuilderController {
         removeHandlers();
         setDefaultStyle();
         setActiveStyle(openMenusButton);
+        openMenusButton.requestFocus();
 
         canvas.setOnMouseEntered(me -> canvas.setCursor(Cursor.HAND));
         canvas.setOnMouseExited(me -> canvas.setCursor(Cursor.DEFAULT));
@@ -289,6 +308,7 @@ public class BuilderController {
         removeHandlers();
         setDefaultStyle();
         setActiveStyle(drawNodeButton);
+        drawNodeButton.requestFocus();
 
         scene = canvas.getScene();
         canvas.setOnMouseEntered(me -> canvas.setCursor(Cursor.CROSSHAIR));
@@ -330,6 +350,7 @@ public class BuilderController {
         removeHandlers();
         setDefaultStyle();
         setActiveStyle(drawEdgeButton);
+        drawEdgeButton.requestFocus();
 
         scene = canvas.getScene();
         canvas.setOnMouseEntered(me -> canvas.setCursor(Cursor.CROSSHAIR));
@@ -587,6 +608,14 @@ public class BuilderController {
             }
             if (keyEvent.getCode() == KeyCode.Z && keyEvent.isControlDown()) undo();
             if (keyEvent.getCode() == KeyCode.Y && keyEvent.isControlDown()) redo();
+            if (keyEvent.getCode() == KeyCode.F1) openDocumentation();
+
+            // eventos de las herramientas
+            if (keyEvent.getCode() == KeyCode.M) setMovingShapesStatus();
+            if (keyEvent.getCode() == KeyCode.D) setDeleteFigureStatus();
+            if (keyEvent.getCode() == KeyCode.E) setDrawEdgeStatus();
+            if (keyEvent.getCode() == KeyCode.N) setDrawNodeStatus();
+            if (keyEvent.getCode() == KeyCode.P) setOpenFigureMenuStatus();
         });
     }
 
@@ -1017,5 +1046,9 @@ public class BuilderController {
 
     public int[][] getAdjacencyMatrixBackup() {
         return adjacencyMatrixBackup;
+    }
+
+    public void setApp(App app) {
+        this.app = app;
     }
 }

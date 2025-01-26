@@ -3,7 +3,6 @@ package edu.upvictoria.graphbuilder;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 public class App extends Application {
@@ -19,6 +18,7 @@ public class App extends Application {
             stage.setScene(scene);
 
             controller.shortcuts();
+            controller.setApp(this);
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();

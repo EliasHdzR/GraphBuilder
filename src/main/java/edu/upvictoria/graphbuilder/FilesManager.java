@@ -76,17 +76,16 @@ public class FilesManager {
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archives CSV", "*.csv"));
 
         File file = fileChooser.showOpenDialog(null);
-        if(file == null){
-            return;
-        }
+        if(file == null) return;
 
         newFile(controller);
-        if(!file.getAbsolutePath().endsWith(".csv")){
-            file = new File(file.getAbsolutePath() + ".csv");
-        }
+        if(!file.getAbsolutePath().endsWith(".csv")) file = new File(file.getAbsolutePath() + ".csv");
 
         controller.setArchivoGrafo(file);
-        readCSVcontent(controller);
+        if (!readCSVcontent(controller)){
+            newFile(controller);
+            return;
+        }
         controller.deleteBackups();
         controller.createBackups();
 
@@ -95,7 +94,7 @@ public class FilesManager {
         controller.textToSpeech("Opened " + controller.getArchivoGrafo().getName());
     }
 
-    private static void readCSVcontent(BuilderController controller) {
+    private static boolean readCSVcontent(BuilderController controller) {
         int filaMatriz = 0;
         ArrayList<Edge> edgeList = new ArrayList<>();
 
@@ -175,9 +174,13 @@ public class FilesManager {
             }
         } catch (Exception e){
             e.printStackTrace();
+            controller.showMessage("    An error ocurred while opening the file.");
+            controller.textToSpeech("An error ocurred while opening the file.");
+            return false;
         }
 
         controller.drawShapes();
+        return true;
     }
 
     public static void saveFile(BuilderController controller) {
